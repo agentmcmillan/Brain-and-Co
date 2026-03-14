@@ -1,0 +1,22 @@
+{
+  "_comment": "DEPRECATED — use gateway-remote.json instead. This config connects to individual services via SSE and is no longer recommended.",
+  "_redirect": "See client-configs/gateway-remote.json for the current single-endpoint remote config.",
+  "mcpServers": {
+    "memento": {
+      "type": "sse",
+      "url": "https://YOUR_DOMAIN/memento/sse?accessKey=YOUR_MEMENTO_ACCESS_KEY",
+      "headers": {
+        "CF-Access-Client-Id": "YOUR_CF_ACCESS_CLIENT_ID",
+        "CF-Access-Client-Secret": "YOUR_CF_ACCESS_CLIENT_SECRET"
+      }
+    },
+    "network-tools": {
+      "type": "sse",
+      "url": "https://YOUR_DOMAIN/tools/mcp",
+      "headers": {
+        "CF-Access-Client-Id": "YOUR_CF_ACCESS_CLIENT_ID",
+        "CF-Access-Client-Secret": "YOUR_CF_ACCESS_CLIENT_SECRET"
+      }
+    }
+  }
+}

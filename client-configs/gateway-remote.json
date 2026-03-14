@@ -1,0 +1,14 @@
+{
+  "_comment": "MCP Gateway — single endpoint for all tools via Cloudflare Access",
+  "_setup": "1. Get CF Access credentials from the Cloudflare Zero Trust dashboard (or from .env on the NAS). 2. Replace CF_ACCESS_CLIENT_ID and CF_ACCESS_CLIENT_SECRET below. 3. Copy the mcpServers block into ~/.claude.json. 4. Restart Claude Code.",
+  "mcpServers": {
+    "mcp-gateway": {
+      "type": "http",
+      "url": "https://YOUR_DOMAIN/gateway/mcp",
+      "headers": {
+        "CF-Access-Client-Id": "YOUR_CF_ACCESS_CLIENT_ID",
+        "CF-Access-Client-Secret": "YOUR_CF_ACCESS_CLIENT_SECRET"
+      }
+    }
+  }
+}

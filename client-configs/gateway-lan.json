@@ -1,0 +1,10 @@
+{
+  "_comment": "MCP Gateway — single endpoint for all tools via LAN direct access",
+  "_setup": "Add the mcp-gateway entry to ~/.claude.json mcpServers. Replaces individual memento + network-tools entries.",
+  "mcpServers": {
+    "mcp-gateway": {
+      "type": "http",
+      "url": "http://CONTAINER_HOST_IP:9000/mcp"
+    }
+  }
+}

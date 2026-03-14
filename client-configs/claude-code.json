@@ -1,0 +1,14 @@
+{
+  "_comment": "DEPRECATED — use gateway-lan.json instead. This config connects to individual services via SSE and is no longer recommended.",
+  "_redirect": "See client-configs/gateway-lan.json for the current single-endpoint LAN config.",
+  "mcpServers": {
+    "memento": {
+      "type": "sse",
+      "url": "http://CONTAINER_HOST_IP:56332/sse?accessKey=YOUR_MEMENTO_ACCESS_KEY"
+    },
+    "network-tools": {
+      "type": "sse",
+      "url": "http://CONTAINER_HOST_IP:8091/mcp"
+    }
+  }
+}

@@ -1,0 +1,38 @@
+# Environment
+.env
+.env.local
+
+# Node
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# macOS
+.DS_Store
+
+# TLS/mTLS secrets
+caddy/client-certs/*.key
+caddy/client-certs/*.p12
+caddy/client-certs/*.csr
+caddy/client-certs/ca.key
+caddy/client-certs/ca.srl
+
+# SSH keys (mounted at runtime)
+ssh-keys/
+
+# Brain-Wave generated output (local-only, not deployed)
+alpha-wave/
+beta-wave/
+rem/
+
+# Docker volumes
+postgres_data/
+redis_data/
+
+# IDE
+.idea/
+.vscode/
+*.swp
