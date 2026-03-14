@@ -15,6 +15,7 @@ Unified platform combining MCP infrastructure, cross-agent memory, local knowled
 | `deploy/` | Deployment scripts for NAS |
 | `brain-wave/` | Agent definitions, hooks, and rules for local knowledge persistence |
 | `skills/` | Claude Code skills (forge, inject, code-review, premortem, integration configs) |
+| `skills/hardware/` | Physical product company skills — 14 specialist + CEO orchestrator |
 
 ## Quick Start
 
@@ -40,6 +41,25 @@ Unified platform combining MCP infrastructure, cross-agent memory, local knowled
 - Context7 health probe returns 406 (cosmetic, tools still work)
 - Docker-MCP needs Docker CLI binary + socket GID detection
 - Ollama-MCP needs `extra_hosts: host.docker.internal:host-gateway`
+
+## Hardware Skills (`/ceo` orchestrator + 13 specialists)
+
+| Skill | Persona | Domain |
+|-------|---------|--------|
+| `/ceo` | The Founder Who Ships | Master orchestrator — routes to specialists by project phase |
+| `/bom-review` | The Sourcing Curmudgeon | BOM audit — single-source risk, lead times, lifecycle |
+| `/supplier-scorecard` | The Vendor Skeptic | Supplier grading — OTD, quality, communication, cost |
+| `/cost-model` | The Margin Hawk | COGS waterfall, volume sensitivity, margin analysis |
+| `/design-review` | The Tooling Veteran | DFM/DFA — tolerances, materials, assembly |
+| `/compliance-check` | The Compliance Grizzly | Regulatory — UL/CE/FCC/RoHS matrix, gap analysis |
+| `/test-protocol` | The Reliability Pessimist | Test planning — HALT, environmental, life cycle |
+| `/inventory-pulse` | The Warehouse Grouch | Inventory health — DOS, dead stock, reorder points |
+| `/production-retro` | The Yield Sergeant | Manufacturing retro — yield, defect Pareto, cycle time |
+| `/ship-logistics` | The Landed Cost Cynic | Shipping — carrier comparison, customs, landed cost |
+| `/field-quality` | The Warranty Accountant | Field failures — MTBF, failure clustering, warranty cost |
+| `/voc-analysis` | The Customer Decoder | Voice of customer — sentiment, complaint clustering |
+| `/plan-ops-review` | The Operations Pessimist | Ops planning — capacity, make-vs-buy, contingency |
+| `/unit-economics` | The True Cost Truthsayer | SKU profitability — absorption vs marginal, breakeven |
 
 ## Environment Variables
 
