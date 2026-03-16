@@ -1,0 +1,69 @@
+scheduler:
+  poll_interval: 30
+  max_concurrent_agents: 3
+  max_retries: 2
+  default_timeout_minutes: 30
+  default_max_turns: 25
+
+sources:
+  linear:
+    enabled: false
+    api_key: "${LINEAR_API_KEY}"
+    team_key: "ENG"
+    claimable_states:
+      - "Todo"
+    in_progress_state: "In Progress"
+    done_state: "Done"
+    failed_state: "Needs Review"
+    label_filter:
+      - "symphony"
+    poll_interval_seconds: 60
+
+  entropy:
+    enabled: true
+    base_url: "http://host.docker.internal:8080"
+    bearer_token: "${ENTROPY_BEARER_TOKEN}"
+    poll_interval_seconds: 30
+
+workspace:
+  base_dir: "/data/symphony/workspaces"
+  db_path: "/data/symphony/symphony.db"
+  cleanup_after_hours: 24
+  default_branch: "main"
+  inject_network_mcp: true
+  # LAN endpoints — memento on :56332, network-tools on :8091
+  # Docker uses host.docker.internal to reach host network
+  network_mcp_url: "http://host.docker.internal"
+  memento_port: 56332
+  network_tools_port: 8091
+
+agent:
+  claude_path: "claude"
+  anthropic_api_key: "${ANTHROPIC_API_KEY}"
+  default_allowed_tools:
+    - "Read"
+    - "Edit"
+    - "Write"
+    - "Bash"
+    - "Grep"
+    - "Glob"
+    - "WebFetch"
+  model: "opus"
+  max_heartbeats: 5
+  turns_per_heartbeat: 25
+  github_token: "${GITHUB_TOKEN}"
+
+hooks:
+  auto_create_pr: true
+  check_ci: true
+  post_linear_comment: true
+  notify_entropy: true
+
+server:
+  host: "0.0.0.0"
+  port: 9100
+  api_token: "${SYMPHONY_API_TOKEN}"
+
+reporting:
+  entropy_base_url: "http://host.docker.internal:8080"
+  entropy_bearer_token: "${ENTROPY_BEARER_TOKEN}"

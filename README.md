@@ -41,6 +41,10 @@ Brain-and-Co brings together four systems into one integrated platform:
 
 **GSD** orchestrates complex multi-phase work (research, plan, execute, verify) with parallel agents.
 
+**Symphony** runs autonomous Claude Code agents at scale — task queuing, heartbeat resumption, PR creation, and CI monitoring.
+
+**gstack** (by Garry Tan) provides the dev lifecycle: plan reviews, code review, ship, QA testing with a headless browser, and retrospectives.
+
 ## Install for Claude Code
 
 **One-liner** (clones repo + installs everything to `~/.claude/`):
@@ -137,6 +141,47 @@ Plan features and execute stories autonomously:
 See [`ralph/`](ralph/) for the full execution system and [interactive flowchart](ralph/flowchart/).
 
 ![Ralph Flowchart](docs/ralph-flowchart.png)
+
+### Symphony (Autonomous Orchestrator)
+
+Runs a fleet of Claude Code agents autonomously — queues tasks, spawns agents, resumes via heartbeat, creates PRs, and monitors CI.
+
+```bash
+cd symphony && docker-compose up -d    # Deploy on port 9100
+
+# Submit a task
+curl -X POST http://localhost:9100/tasks \
+  -H "Authorization: Bearer $SYMPHONY_API_TOKEN" \
+  -d '{"title":"Fix auth bug","prompt":"...","repo_url":"https://github.com/..."}'
+```
+
+- Polls Entropy Reader (iOS app) and Linear for tasks
+- Up to 3 concurrent agents with priority queue + dependency resolution
+- Heartbeat resumption: tasks can span up to 5 sessions (25 turns each)
+- Auto-creates GitHub PRs and monitors CI status on completion
+
+See [`symphony/`](symphony/) for full source and configuration.
+
+### gstack (Dev Lifecycle Skills)
+
+Third-party workflow system by [Garry Tan](https://github.com/garrytan/gstack). Install separately:
+
+```bash
+git clone https://github.com/garrytan/gstack.git ~/.claude/skills/gstack
+cd ~/.claude/skills/gstack && ./setup
+```
+
+| Skill | Purpose |
+|-------|---------|
+| `/plan-ceo-review` | Founder mode: rethink the problem |
+| `/plan-eng-review` | Tech lead mode: architecture + edge cases |
+| `/review` | Pre-landing code review |
+| `/ship` | Sync, test, review, PR in one command |
+| `/browse` | Headless browser for QA testing (~100ms/command) |
+| `/qa` | Systematic QA: diff-aware, full, quick, regression |
+| `/retro` | Engineering retrospective |
+
+See [`integrations/gstack/`](integrations/gstack/) for integration docs.
 
 ### Skills Library (30+)
 

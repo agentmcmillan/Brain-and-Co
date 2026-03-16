@@ -16,8 +16,9 @@ Unified platform: MCP infrastructure + cross-agent memory + local knowledge pers
 | `.claude/agents/` | 15 agent definitions (memory, execution, quality) |
 | `.claude/rules/` | 6 auto-loaded context rules |
 | `skills/` | 30+ Claude Code skills (memory, execution, hardware, review) |
-| `integrations/` | Hooks, agent-teams, ClawHub, Gastown, prompts |
+| `integrations/` | Hooks, agent-teams, ClawHub, Gastown, gstack, prompts |
 | `ralph/` | Autonomous execution system (Bart + Ralph + GSD) |
+| `symphony/` | Autonomous agent orchestrator (task queuing, heartbeat, PR creation) |
 | `docs/` | Reference images and diagrams |
 
 ## Quick Start
@@ -80,6 +81,31 @@ Initialize with: `use brain-wave-init agent`
 | memory-decay | `use memory-decay agent` | Compact old sessions |
 | shared-memory | `use shared-memory agent` | Cross-instance sync |
 | beads-tasks | `use beads-tasks agent` | Git-backed task tracking |
+
+## Symphony (Autonomous Orchestrator)
+
+Manages a fleet of Claude Code agents with task queuing, heartbeat resumption, and post-completion hooks.
+
+```bash
+cd symphony && docker-compose up -d    # Deploy (port 9100)
+curl http://localhost:9100/tasks        # List tasks
+curl -X POST http://localhost:9100/tasks -d '{"title":"Fix bug","prompt":"...","repo_url":"..."}'
+```
+
+Polls Entropy Reader and Linear for tasks. See `symphony/` for full docs.
+
+## gstack (Dev Workflow Skills)
+
+Third-party tool by Garry Tan. Install separately:
+
+```bash
+git clone https://github.com/garrytan/gstack.git ~/.claude/skills/gstack
+cd ~/.claude/skills/gstack && ./setup
+```
+
+Provides: `/plan-ceo-review`, `/plan-eng-review`, `/review`, `/ship`, `/browse`, `/qa`, `/retro`
+
+See `integrations/gstack/` for integration docs.
 
 ## Architecture
 
