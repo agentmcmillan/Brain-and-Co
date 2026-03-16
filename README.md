@@ -41,50 +41,61 @@ Brain-and-Co brings together four systems into one integrated platform:
 
 **GSD** orchestrates complex multi-phase work (research, plan, execute, verify) with parallel agents.
 
-## Quick Start
+## Install for Claude Code
 
-### Option 1: Skills Only (No Infrastructure)
+**One-liner** (clones repo + installs everything to `~/.claude/`):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/agentmcmillan/Brain-and-Co/main/install.sh | bash
+```
+
+Then restart Claude Code and run `use brain-wave-init agent` in any project.
+
+### Manual Install
 
 ```bash
 git clone https://github.com/agentmcmillan/Brain-and-Co.git
 cd Brain-and-Co
-
-# Install agents, hooks, rules, and skills into ~/.claude/
 ./setup.sh
-
-# In Claude Code, initialize Brain-Wave:
-# use brain-wave-init agent
 ```
 
-### Option 2: Full Stack (Skills + Infrastructure)
+This installs **15 agents**, **6 rules**, **36 skills**, and **6 hooks** into `~/.claude/`.
+
+### What Gets Installed
+
+| Component | Count | Location | Purpose |
+|-----------|-------|----------|---------|
+| Agents | 15 | `~/.claude/agents/` | Memory, execution, quality agents |
+| Rules | 6 | `~/.claude/rules/` | Auto-loaded context on every session |
+| Skills | 36 | `~/.claude/skills/` | Slash commands (`/bart`, `/ralph`, `/ceo`, etc.) |
+| Hooks | 6 | `~/.claude/hooks/brain-wave/` | Auto-sync memory on file changes |
+
+### Copy to a Specific Project
+
+If you only want Brain-Wave in one project instead of globally:
 
 ```bash
-git clone https://github.com/agentmcmillan/Brain-and-Co.git
-cd Brain-and-Co
-
-# Install skills
-./setup.sh
-
-# Configure infrastructure
-cp .env.example .env
-# Edit .env with your credentials
-
-# Deploy
-docker-compose up -d
-
-# Or deploy to NAS
-./deploy/deploy.sh
-```
-
-### Option 3: Copy to Existing Project
-
-```bash
-# Copy just the agent system to your project
 cp -r Brain-and-Co/.claude/ /path/to/your/project/.claude/
 cp Brain-and-Co/CLAUDE.md /path/to/your/project/
 
 # In your project with Claude Code:
 # use brain-wave-init agent
+```
+
+### Full Stack (Skills + MCP Infrastructure)
+
+For the complete platform including Memento semantic memory, MCP Gateway, and all wrappers:
+
+```bash
+git clone https://github.com/agentmcmillan/Brain-and-Co.git
+cd Brain-and-Co
+./setup.sh
+
+# Configure infrastructure
+cp .env.example .env
+# Edit .env with your credentials (POSTGRES_PASSWORD, MEMENTO_ACCESS_KEY, GITHUB_PERSONAL_ACCESS_TOKEN)
+
+docker-compose up -d
 ```
 
 ## Components
