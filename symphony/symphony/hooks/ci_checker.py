@@ -34,7 +34,7 @@ async def check_ci(task: Task, config: SymphonyConfig) -> None:
     elapsed = 0.0
     while elapsed < CI_TIMEOUT_SECONDS:
         proc = await asyncio.create_subprocess_exec(
-            "gh", "pr", "checks", match.group(0).replace("/pull/", ""),
+            "gh", "pr", "checks", match.group(1),
             "--json", "name,state,conclusion",
             cwd=task.workspace_path or ".",
             stdout=asyncio.subprocess.PIPE,

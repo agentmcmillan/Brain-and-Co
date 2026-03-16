@@ -59,7 +59,7 @@ class ContextManager:
                             "type": "task_completion",
                         },
                     },
-                    headers={"Authorization": "Bearer YOUR_MEMENTO_ACCESS_KEY"},
+                    headers={"Authorization": f"Bearer {self.config.workspace.memento_access_key}"},
                 )
                 if resp.status_code < 300:
                     logger.debug("Stored context in memento for task %s", task.id)

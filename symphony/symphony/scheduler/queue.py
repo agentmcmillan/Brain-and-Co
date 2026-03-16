@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class TaskQueue:
-    """Thread-safe priority queue with concurrency tracking."""
+    """Priority queue with concurrency tracking."""
 
     def __init__(self, max_concurrent: int = 3):
         self.max_concurrent = max_concurrent
@@ -47,7 +47,10 @@ class TaskQueue:
         return True
 
     def enqueue_existing(self, task: Task) -> None:
-        """Re-add a known task (e.g. after SUSPENDED → QUEUED). Skips duplicate check."""
+        """Re-add a known task (e.g. after SUSPENDED -> QUEUED). Guards against double-enqueue."""
+        if any(t.id == task.id for _, _, t in self._pending):
+            logger.warning("Skipped double-enqueue for task %s", task.id)
+            return
         self._all[task.id] = task
         heapq.heappush(self._pending, (task.priority, task.created_at, task))
         logger.info("Re-enqueued existing task %s (status=%s)", task.id, task.status.value)

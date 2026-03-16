@@ -48,11 +48,12 @@ class WorkspaceManager:
         else:
             # No repo — create empty workspace
             workspace.mkdir(parents=True, exist_ok=True)
-            await asyncio.create_subprocess_exec(
+            proc = await asyncio.create_subprocess_exec(
                 "git", "init", str(workspace),
                 stdout=asyncio.subprocess.DEVNULL,
                 stderr=asyncio.subprocess.DEVNULL,
             )
+            await proc.wait()
 
         self._inject_claude_md(workspace, task, prior_context)
         self._inject_claude_json(workspace)

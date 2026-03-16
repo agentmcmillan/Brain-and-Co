@@ -131,11 +131,16 @@ function validateQuery(sql) {
     return { isValid: false, error: "SELECT 쿼리만 허용됩니다" };
   }
 
-  const forbidden = ["insert", "update", "delete", "drop", "alter", "create", "truncate", "grant", "revoke"];
+  const forbidden = ["insert", "update", "delete", "drop", "alter", "create", "truncate", "grant", "revoke", "union", "execute", "pg_sleep", "copy"];
   for (const keyword of forbidden) {
-    if (normalized.includes(keyword)) {
+    if (new RegExp("\\b" + keyword + "\\b").test(normalized)) {
       return { isValid: false, error: `'${keyword}' 키워드는 허용되지 않습니다` };
     }
+  }
+
+  // Block SQL comment sequences
+  if (normalized.includes("--") || normalized.includes("/*")) {
+    return { isValid: false, error: "SQL comments are not allowed" };
   }
 
   return { isValid: true };
@@ -193,7 +198,7 @@ export async function queryWithAgentVector(agentId, sql, params = []) {
   try {
     const SCHEMA  = "agent_memory";
     await client.query(`SET search_path TO ${SCHEMA}, nerdvana, public`);
-    await client.query(`SET LOCAL app.current_agent_id = '${safeAgent}'`);
+    await client.query(`SET LOCAL app.current_agent_id = $1`, [safeAgent]);
     return await client.query(sql, params);
   } finally {
     client.release();

@@ -25,10 +25,12 @@ STATUS_ONLY=false
 while [[ $# -gt 0 ]]; do
   case $1 in
     --max-stories)
+      if ! [[ "$2" =~ ^[0-9]+$ ]]; then echo "Error: --max-stories must be a non-negative integer"; exit 1; fi
       MAX_STORIES="$2"
       shift 2
       ;;
     --timeout)
+      if ! [[ "$2" =~ ^[0-9]+$ ]]; then echo "Error: --timeout must be a non-negative integer"; exit 1; fi
       TIMEOUT_MINUTES="$2"
       shift 2
       ;;
@@ -58,9 +60,17 @@ if [ ! -f "$PRD_FILE" ]; then
   exit 1
 fi
 
-# Parse prd.json
+# Parse prd.json (validate safe characters to prevent prompt injection)
 PROJECT=$(jq -r '.project' "$PRD_FILE")
 BRANCH=$(jq -r '.branchName' "$PRD_FILE")
+if ! [[ "$PROJECT" =~ ^[A-Za-z0-9_\ \-\.]+$ ]]; then
+  echo "Error: project name in prd.json contains unsafe characters"
+  exit 1
+fi
+if ! [[ "$BRANCH" =~ ^[A-Za-z0-9_/\-\.]+$ ]]; then
+  echo "Error: branchName in prd.json contains unsafe characters"
+  exit 1
+fi
 TOTAL_STORIES=$(jq '.userStories | length' "$PRD_FILE")
 COMPLETE_STORIES=$(jq '[.userStories[] | select(.passes == true)] | length' "$PRD_FILE")
 PENDING_STORIES=$((TOTAL_STORIES - COMPLETE_STORIES))

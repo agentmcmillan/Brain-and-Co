@@ -20,6 +20,6 @@ User runs `/code-review` to review current uncommitted or recent changes.
 ## Usage
 
 ```
-/review           (reviews current uncommitted changes)
-/review HEAD~3    (reviews last 3 commits)
+/code-review           (reviews current uncommitted changes)
+/code-review HEAD~3    (reviews last 3 commits)
 ```

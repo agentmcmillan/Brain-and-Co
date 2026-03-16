@@ -50,6 +50,7 @@ class WorkspaceConfig(BaseModel):
     inject_network_mcp: bool = True
     network_mcp_url: str = "http://host.docker.internal"
     memento_port: int = 56332
+    memento_access_key: str = ""
     network_tools_port: int = 8091
 
 
@@ -95,9 +96,9 @@ class SymphonyConfig(BaseModel):
 
 def _resolve_env_vars(data: Any) -> Any:
     """Recursively resolve ${ENV_VAR} references in config values."""
-    if isinstance(data, str) and data.startswith("${") and data.endswith("}"):
-        env_key = data[2:-1]
-        return os.environ.get(env_key, "")
+    import re
+    if isinstance(data, str) and "${" in data:
+        return re.sub(r'\$\{([^}]+)\}', lambda m: os.environ.get(m.group(1), ""), data)
     if isinstance(data, dict):
         return {k: _resolve_env_vars(v) for k, v in data.items()}
     if isinstance(data, list):
@@ -132,5 +133,7 @@ def load_config(config_path: str | Path | None = None) -> SymphonyConfig:
         config.agent.github_token = key
     if key := os.environ.get("SYMPHONY_API_TOKEN"):
         config.server.api_token = key
+    if key := os.environ.get("MEMENTO_ACCESS_KEY"):
+        config.workspace.memento_access_key = key
 
     return config

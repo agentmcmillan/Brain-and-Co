@@ -159,7 +159,7 @@ services:
       SSH_MCP_URL: "http://ssh-mcp:3000"
       RSS_MCP_URL: "http://rss-mcp:3000"
     ports:
-      - "9000:9000"
+      - "127.0.0.1:9000:9000"
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:9000/health || exit 1"]
       interval: 15s

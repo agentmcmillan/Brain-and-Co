@@ -46,11 +46,11 @@ Display this message:
 The Brain-Wave agent files are not installed. To fix this:
 
 Option 1 - Download from GitHub:
-  git clone https://github.com/agentmcmillan/Claude-Brain-Care.git /tmp/brain-care
-  cp -r /tmp/brain-care/.claude/agents/* .claude/agents/
-  rm -rf /tmp/brain-care
+  git clone https://github.com/agentmcmillan/Brain-and-Co.git /tmp/brain-and-co
+  cp -r /tmp/brain-and-co/.claude/agents/* .claude/agents/
+  rm -rf /tmp/brain-and-co
 
-Option 2 - If this IS the brain-care repo:
+Option 2 - If this IS the Brain-and-Co repo:
   The agent files should already exist. Check your git status.
 
 Would you like me to help set this up?
@@ -125,15 +125,15 @@ This allows the user to continue prompting while agents work. Progress can be mo
 ## GitHub Repository Reference
 
 Brain-Wave Memory System repository:
-- GitHub: https://github.com/agentmcmillan/Claude-Brain-Care
+- GitHub: https://github.com/agentmcmillan/Brain-and-Co
 
 To get the latest agent definitions:
 ```bash
 # Clone just the agents folder
-curl -L https://github.com/agentmcmillan/Claude-Brain-Care/archive/main.zip -o /tmp/brain-care.zip
-unzip /tmp/brain-care.zip -d /tmp/
-cp -r /tmp/Claude-Brain-Care-main/.claude/agents/* .claude/agents/
-rm -rf /tmp/brain-care.zip /tmp/Claude-Brain-Care-main
+curl -L https://github.com/agentmcmillan/Brain-and-Co/archive/main.zip -o /tmp/brain-and-co.zip
+unzip /tmp/brain-and-co.zip -d /tmp/
+cp -r /tmp/Brain-and-Co-main/.claude/agents/* .claude/agents/
+rm -rf /tmp/brain-and-co.zip /tmp/Brain-and-Co-main
 ```
 
 ## Silent Mode

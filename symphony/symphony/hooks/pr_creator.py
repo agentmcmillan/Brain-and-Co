@@ -81,7 +81,7 @@ async def create_pr(task: Task, config: SymphonyConfig) -> None:
 **Duration**: {task.elapsed_seconds:.0f}s
 
 ---
-*Created by [Symphony](https://github.com/openai/symphony) for Claude Code*
+*Created by Symphony (Brain-and-Co autonomous agent orchestrator)*
 """
 
     proc = await asyncio.create_subprocess_exec(

@@ -133,7 +133,8 @@ export async function handleAuthorize(params) {
 
   /** ACCESS_KEY 검증 (client_id로 전달된 경우) */
   if (ACCESS_KEY && client_id !== ACCESS_KEY) {
-    console.log(`[OAuth] Invalid client_id: ${client_id?.substring(0, 10)}...`);
+    console.log(`[OAuth] Rejected invalid client_id: ${client_id?.substring(0, 10)}...`);
+    return { success: false, error: "unauthorized_client", error_description: "Invalid client_id" };
   }
 
   /** 인증 코드 생성 */

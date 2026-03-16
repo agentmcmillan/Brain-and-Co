@@ -71,35 +71,48 @@ function createRedisClient() {
   }
 }
 
-/** Redis 클라이언트 */
-export const redisClient = createRedisClient();
+/** Redis 클라이언트 (lazy-initialized) */
+let _redisClient = null;
 
-/** 이벤트 핸들러 */
-redisClient.on("connect", () => {
-  logInfo("Redis client connected", {
-    host: REDIS_HOST,
-    port: REDIS_PORT,
-    db  : REDIS_DB
-  });
-});
+export function getRedisClientInstance() {
+  if (!_redisClient) {
+    _redisClient = createRedisClient();
 
-redisClient.on("ready", () => {
-  logInfo("Redis client ready");
-});
+    _redisClient.on("connect", () => {
+      logInfo("Redis client connected", {
+        host: REDIS_HOST,
+        port: REDIS_PORT,
+        db  : REDIS_DB
+      });
+    });
 
-redisClient.on("error", (err) => {
-  logError("Redis client error", err, {
-    host: REDIS_HOST,
-    port: REDIS_PORT
-  });
-});
+    _redisClient.on("ready", () => {
+      logInfo("Redis client ready");
+    });
 
-redisClient.on("close", () => {
-  logWarn("Redis client connection closed");
-});
+    _redisClient.on("error", (err) => {
+      logError("Redis client error", err, {
+        host: REDIS_HOST,
+        port: REDIS_PORT
+      });
+    });
 
-redisClient.on("reconnecting", () => {
-  logInfo("Redis client reconnecting...");
+    _redisClient.on("close", () => {
+      logWarn("Redis client connection closed");
+    });
+
+    _redisClient.on("reconnecting", () => {
+      logInfo("Redis client reconnecting...");
+    });
+  }
+  return _redisClient;
+}
+
+/** Backwards-compatible export (lazy proxy) */
+export const redisClient = new Proxy({}, {
+  get(_, prop) {
+    return getRedisClientInstance()[prop];
+  }
 });
 
 /**

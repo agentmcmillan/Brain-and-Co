@@ -6,6 +6,16 @@ GSTACK_DIR="$(cd "$(dirname "$0")" && pwd)"
 SKILLS_DIR="$(dirname "$GSTACK_DIR")"
 BROWSE_BIN="$GSTACK_DIR/browse/dist/browse"
 
+# Check for bun before proceeding
+if ! command -v bun >/dev/null 2>&1; then
+  echo "gstack setup error: 'bun' is not installed." >&2
+  echo "Install: curl -fsSL https://bun.sh/install | bash" >&2
+  exit 1
+fi
+
+# Capture first-time state before creating directories
+[ ! -d "$HOME/.gstack" ] && FIRST_TIME=1
+
 ensure_playwright_browser() {
   (
     cd "$GSTACK_DIR"
@@ -89,9 +99,8 @@ else
   echo "  (skipped skill symlinks — not inside .claude/skills/)"
 fi
 
-# 4. First-time welcome + legacy cleanup
-if [ ! -d "$HOME/.gstack" ]; then
-  mkdir -p "$HOME/.gstack"
+# 5. First-time welcome + legacy cleanup
+if [ "${FIRST_TIME:-0}" -eq 1 ]; then
   echo "  Welcome! Run /gstack-upgrade anytime to stay current."
 fi
 rm -f /tmp/gstack-latest-version

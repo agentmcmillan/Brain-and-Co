@@ -40,10 +40,12 @@ ssh "${NAS_USER}@${NAS_HOST}" << 'REMOTE'
 cd ~/brain-and-co
 # Atomic extraction: unpack to temp dir, then overlay (prevents partial state on failure)
 TMPDIR=$(mktemp -d ./deploy-XXXXXX)
+trap 'rm -rf "$TMPDIR"' EXIT
 tar xzf deploy.tar.gz -C "$TMPDIR"
 rm deploy.tar.gz
 cp -a "$TMPDIR"/. .
 rm -rf "$TMPDIR"
+trap - EXIT
 
 # Ensure .env exists with required vars
 if [ ! -f .env ]; then
@@ -53,8 +55,11 @@ if [ ! -f .env ]; then
     exit 1
 fi
 
-# Verify required env vars are set
-source .env
+# Verify required env vars are set (parse safely without shell execution)
+while IFS='=' read -r key val; do
+  [[ "$key" =~ ^#|^$ ]] && continue
+  export "$key=$val"
+done < .env
 if [ -z "$POSTGRES_PASSWORD" ] || [ -z "$MEMENTO_ACCESS_KEY" ]; then
     echo "ERROR: POSTGRES_PASSWORD and MEMENTO_ACCESS_KEY must be set in .env"
     exit 1

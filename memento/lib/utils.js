@@ -48,10 +48,17 @@ export function sseWrite(res, event, data) {
 /**
  * JSON Body 읽기
  */
-export function readJsonBody(req) {
+export function readJsonBody(req, maxBytes = 1048576) {
   return new Promise((resolve, reject) => {
     let body               = "";
+    let received           = 0;
     req.on("data", (chunk) => {
+      received            += chunk.length;
+      if (received > maxBytes) {
+        req.destroy();
+        reject(new Error("Request body too large"));
+        return;
+      }
       body                += chunk.toString("utf8");
     });
     req.on("end", () => {

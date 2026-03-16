@@ -81,9 +81,10 @@ async def list_tasks(request: Request) -> JSONResponse:
         tasks = [t for t in tasks if t.status.value == status_filter.upper()]
 
     limit = int(request.query_params.get("limit", "50"))
-    tasks = sorted(tasks, key=lambda t: t.created_at, reverse=True)[:limit]
+    all_sorted = sorted(tasks, key=lambda t: t.created_at, reverse=True)
+    paged = all_sorted[:limit]
 
-    return JSONResponse({"tasks": [t.to_dict() for t in tasks], "total": len(tasks)})
+    return JSONResponse({"tasks": [t.to_dict() for t in paged], "total": len(all_sorted)})
 
 
 async def get_task(request: Request) -> JSONResponse:

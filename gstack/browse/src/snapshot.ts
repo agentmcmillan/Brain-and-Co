@@ -310,7 +310,8 @@ export async function handleSnapshot(
   if (opts.annotate) {
     const screenshotPath = opts.outputPath || '/tmp/browse-annotated.png';
     // Validate output path (consistent with screenshot/pdf/responsive)
-    const resolvedPath = require('path').resolve(screenshotPath);
+    const { resolve: resolvePath } = await import('path');
+    const resolvedPath = resolvePath(screenshotPath);
     const safeDirs = ['/tmp', process.cwd()];
     if (!safeDirs.some((dir: string) => resolvedPath === dir || resolvedPath.startsWith(dir + '/'))) {
       throw new Error(`Path must be within: ${safeDirs.join(', ')}`);

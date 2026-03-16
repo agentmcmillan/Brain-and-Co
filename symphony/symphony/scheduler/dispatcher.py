@@ -63,8 +63,8 @@ class Dispatcher:
         await self.store.init()
         active = await self.store.load_active_tasks()
         for task in active:
-            # Reset RUNNING/PREPARING tasks back to QUEUED (process died)
-            if task.status in (TaskStatus.RUNNING, TaskStatus.PREPARING):
+            # Reset RUNNING/PREPARING/RETRY tasks back to QUEUED (process died)
+            if task.status in (TaskStatus.RUNNING, TaskStatus.PREPARING, TaskStatus.RETRY):
                 task.status = TaskStatus.QUEUED
             # SUSPENDED tasks go back to QUEUED for next heartbeat
             if task.status == TaskStatus.SUSPENDED:
@@ -188,7 +188,9 @@ class Dispatcher:
                 if session.elapsed_seconds > task.timeout_minutes * 60:
                     logger.warning("Task %s timed out", task_id)
                     await session.kill()
-                    task.error = f"Timeout after {task.timeout_minutes} minutes"
+                    # Mark as timed out without setting task.error, so heartbeat
+                    # resumption is still possible in _handle_completion
+                    task._timed_out = True
 
         # 4. Dispatch pending tasks
         while self.queue.has_pending and self.queue.slots_available > 0:
@@ -342,7 +344,9 @@ class Dispatcher:
                 except ValueError:
                     task.status = TaskStatus.FAILURE
 
-        self.queue.mark_completed(task)
+        # Only mark completed if the task was not re-enqueued (e.g. SUSPENDED -> QUEUED)
+        if task.status != TaskStatus.QUEUED:
+            self.queue.mark_completed(task)
         await self.store.save(task)
 
         # Report to Entropy Reader
