@@ -23,10 +23,10 @@ caddy/client-certs/ca.srl
 # SSH keys (mounted at runtime)
 ssh-keys/
 
-# Brain-Wave generated output (local-only, not deployed)
-alpha-wave/
-beta-wave/
-rem/
+# Brain-Wave generated output (created by agents at runtime)
+/alpha-wave/
+/beta-wave/
+/rem/
 
 # Docker volumes
 postgres_data/
@@ -36,3 +36,16 @@ redis_data/
 .idea/
 .vscode/
 *.swp
+
+# Ralph working files (session artifacts)
+ralph/prd.json
+ralph/progress.txt
+ralph/archive/
+ralph/.last-branch
+
+# Flowchart build output
+ralph/flowchart/dist/
+ralph/flowchart/node_modules/
+
+# Planning artifacts
+.planning/

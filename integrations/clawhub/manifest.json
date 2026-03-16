@@ -1,0 +1,127 @@
+{
+  "$schema": "https://clawhub.ai/schemas/manifest.json",
+  "collection": {
+    "name": "brain-wave",
+    "displayName": "Brain-Wave Memory System",
+    "description": "Persistent AI context across sessions with indexing, mapping, and session tracking",
+    "version": "1.0.0",
+    "author": "agentmcmillan",
+    "homepage": "https://github.com/agentmcmillan/Claude-Brain-Care",
+    "repository": "https://github.com/agentmcmillan/Claude-Brain-Care",
+    "license": "MIT",
+    "tags": [
+      "memory",
+      "context",
+      "persistence",
+      "productivity",
+      "planning",
+      "execution"
+    ]
+  },
+  "skills": [
+    {
+      "name": "brain-wave-init",
+      "path": "skills/brain-wave-init",
+      "category": "initialization",
+      "primary": true
+    },
+    {
+      "name": "alpha-wave",
+      "path": "skills/alpha-wave",
+      "category": "memory"
+    },
+    {
+      "name": "beta-wave",
+      "path": "skills/beta-wave",
+      "category": "memory"
+    },
+    {
+      "name": "rem",
+      "path": "skills/rem",
+      "category": "memory"
+    },
+    {
+      "name": "bart-enhanced",
+      "path": "skills/bart-enhanced",
+      "category": "planning"
+    },
+    {
+      "name": "ralph-enhanced",
+      "path": "skills/ralph-enhanced",
+      "category": "execution"
+    },
+    {
+      "name": "gsd-orchestrator",
+      "path": "skills/gsd-orchestrator",
+      "category": "orchestration"
+    },
+    {
+      "name": "mcralph-orchestrator",
+      "path": "skills/mcralph-orchestrator",
+      "category": "orchestration"
+    },
+    {
+      "name": "planning-enhanced",
+      "path": "skills/planning-enhanced",
+      "category": "planning"
+    },
+    {
+      "name": "shared-memory",
+      "path": "skills/shared-memory",
+      "category": "collaboration"
+    },
+    {
+      "name": "memory-decay",
+      "path": "skills/memory-decay",
+      "category": "maintenance"
+    },
+    {
+      "name": "beads-tasks",
+      "path": "skills/beads-tasks",
+      "category": "tasks"
+    },
+    {
+      "name": "brain-wave-prime",
+      "path": "skills/brain-wave-prime",
+      "category": "orchestration"
+    }
+  ],
+  "dependencies": {
+    "brain-wave-init": [],
+    "alpha-wave": [],
+    "beta-wave": ["alpha-wave"],
+    "rem": ["alpha-wave", "beta-wave"],
+    "bart-enhanced": ["alpha-wave", "beta-wave"],
+    "ralph-enhanced": ["alpha-wave", "beta-wave"],
+    "gsd-orchestrator": ["alpha-wave", "beta-wave"],
+    "mcralph-orchestrator": ["alpha-wave", "beta-wave", "rem"],
+    "planning-enhanced": ["alpha-wave"],
+    "shared-memory": ["rem"],
+    "memory-decay": ["rem"],
+    "beads-tasks": [],
+    "brain-wave-prime": ["alpha-wave", "beta-wave", "rem"]
+  },
+  "installOrder": [
+    "brain-wave-init",
+    "alpha-wave",
+    "beta-wave",
+    "rem",
+    "brain-wave-prime",
+    "bart-enhanced",
+    "ralph-enhanced",
+    "planning-enhanced",
+    "gsd-orchestrator",
+    "mcralph-orchestrator",
+    "shared-memory",
+    "memory-decay",
+    "beads-tasks"
+  ],
+  "metadata": {
+    "minOpenClawVersion": "1.0.0",
+    "platforms": ["darwin", "linux", "windows"],
+    "requirements": {
+      "bins": ["git"],
+      "optional_bins": ["node"]
+    }
+  }
+}

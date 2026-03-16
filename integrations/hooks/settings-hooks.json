@@ -1,0 +1,35 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "command": "node ~/.claude/hooks/brain-wave/auto-sync-rem.js",
+        "description": "Updates REM changelog and session state after file edits"
+      },
+      {
+        "matcher": "Write",
+        "command": "node ~/.claude/hooks/brain-wave/auto-index-alpha.js",
+        "description": "Adds new files to Alpha-Wave INDEX"
+      },
+      {
+        "matcher": "Task",
+        "command": "node ~/.claude/hooks/brain-wave/discovery-logger.js",
+        "description": "Logs agent task insights to REM discoveries"
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "idle_prompt",
+        "command": "node ~/.claude/hooks/brain-wave/session-checkpoint.js",
+        "description": "Saves session state when Claude goes idle"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Read",
+        "command": "node ~/.claude/hooks/brain-wave/context-hint.js",
+        "description": "Suggests related files from Beta-Wave connections"
+      }
+    ]
+  }
+}
