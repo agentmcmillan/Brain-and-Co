@@ -164,12 +164,7 @@ See [`symphony/`](symphony/) for full source and configuration.
 
 ### gstack (Dev Lifecycle Skills)
 
-Third-party workflow system by [Garry Tan](https://github.com/garrytan/gstack). Install separately:
-
-```bash
-git clone https://github.com/garrytan/gstack.git ~/.claude/skills/gstack
-cd ~/.claude/skills/gstack && ./setup
-```
+Bundled from [garrytan/gstack](https://github.com/garrytan/gstack) (MIT). Installed automatically by `./setup.sh` — requires [Bun](https://bun.sh) to build the headless browser binary.
 
 | Skill | Purpose |
 |-------|---------|
@@ -180,8 +175,9 @@ cd ~/.claude/skills/gstack && ./setup
 | `/browse` | Headless browser for QA testing (~100ms/command) |
 | `/qa` | Systematic QA: diff-aware, full, quick, regression |
 | `/retro` | Engineering retrospective |
+| `/setup-browser-cookies` | Import cookies from real browser for auth testing |
 
-See [`integrations/gstack/`](integrations/gstack/) for integration docs.
+See [`gstack/`](gstack/) for full source and [`gstack/ARCHITECTURE.md`](gstack/ARCHITECTURE.md) for internals.
 
 ### Skills Library (30+)
 
@@ -261,6 +257,7 @@ bash integrations/hooks/install.sh
 
 Built on the shoulders of giants:
 
+- **Garry Tan** — [gstack](https://github.com/garrytan/gstack) (dev workflow skills + headless browser)
 - **Geoffrey Huntley** — [Ralph pattern](https://ghuntley.com/ralph/) (master/worker agent architecture)
 - **glittercowboy** — [Get Shit Done](https://github.com/glittercowboy/get-shit-done) (multi-agent orchestration)
 - **OthmanAdi** — [Planning with Files](https://github.com/OthmanAdi/planning-with-files) (Manus-style persistence)

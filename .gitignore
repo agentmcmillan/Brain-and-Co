@@ -49,3 +49,9 @@ ralph/flowchart/node_modules/
 
 # Planning artifacts
 .planning/
+
+# gstack build artifacts (built by ./gstack/setup)
+gstack/browse/dist/
+gstack/bun.lock
+gstack/*.bun-build
+.gstack/

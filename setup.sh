@@ -68,16 +68,59 @@ for skill_dir in "$REPO_DIR"/skills/*/; do
   fi
 done
 
+# --- gstack (headless browser + dev workflow skills) ---
+echo ""
+echo "Installing gstack..."
+GSTACK_SRC="$REPO_DIR/gstack"
+GSTACK_DST="$CLAUDE_DIR/skills/gstack"
+
+if [ -d "$GSTACK_SRC" ]; then
+  # Copy gstack source (preserving structure for build)
+  mkdir -p "$GSTACK_DST"
+  rsync -a --delete \
+    --exclude='node_modules' \
+    --exclude='browse/dist' \
+    --exclude='.git' \
+    --exclude='.gstack' \
+    --exclude='bun.lock' \
+    --exclude='*.bun-build' \
+    "$GSTACK_SRC/" "$GSTACK_DST/"
+
+  # Link gstack sub-skills (browse, qa, review, ship, etc.)
+  for skill_dir in "$GSTACK_DST"/*/; do
+    if [ -f "$skill_dir/SKILL.md" ]; then
+      skill_name="$(basename "$skill_dir")"
+      [ "$skill_name" = "node_modules" ] && continue
+      target="$CLAUDE_DIR/skills/$skill_name"
+      if [ -L "$target" ] || [ ! -e "$target" ]; then
+        ln -snf "gstack/$skill_name" "$target"
+        echo "  + skills/$skill_name -> gstack/$skill_name"
+      fi
+    fi
+  done
+
+  # Build browse binary if bun is available
+  if command -v bun &>/dev/null; then
+    echo "  Building gstack browse binary..."
+    (cd "$GSTACK_DST" && ./setup 2>&1 | sed 's/^/  /')
+  else
+    echo "  Note: Install bun (https://bun.sh) then run: cd $GSTACK_DST && ./setup"
+  fi
+else
+  echo "  Skipped (gstack/ not found in repo)"
+fi
+
 # --- Summary ---
 AGENT_COUNT=$(ls -1 "$REPO_DIR"/.claude/agents/*.md 2>/dev/null | wc -l | tr -d ' ')
 RULE_COUNT=$(ls -1 "$REPO_DIR"/.claude/rules/*.md 2>/dev/null | wc -l | tr -d ' ')
 HOOK_COUNT=$(ls -1 "$REPO_DIR"/integrations/hooks/*.js 2>/dev/null | wc -l | tr -d ' ')
 SKILL_COUNT=$(find "$REPO_DIR/skills" -name 'SKILL.md' 2>/dev/null | wc -l | tr -d ' ')
+GSTACK_SKILL_COUNT=$(find "$REPO_DIR/gstack" -maxdepth 2 -name 'SKILL.md' 2>/dev/null | wc -l | tr -d ' ')
 
 echo ""
 echo "=== Setup Complete ==="
 echo ""
-echo "Installed: $AGENT_COUNT agents, $RULE_COUNT rules, $HOOK_COUNT hooks, $SKILL_COUNT skills"
+echo "Installed: $AGENT_COUNT agents, $RULE_COUNT rules, $HOOK_COUNT hooks, $SKILL_COUNT + $GSTACK_SKILL_COUNT skills"
 echo ""
 echo "Next steps:"
 echo "  1. Restart Claude Code"

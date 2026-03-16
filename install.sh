@@ -62,6 +62,33 @@ for skill_dir in skills/*/; do
   fi
 done
 
+# --- gstack (headless browser + dev workflow skills) ---
+echo "Installing gstack..."
+GSTACK_DST="$CLAUDE_DIR/skills/gstack"
+mkdir -p "$GSTACK_DST"
+rsync -a --delete \
+  --exclude='node_modules' --exclude='browse/dist' --exclude='.git' \
+  --exclude='.gstack' --exclude='bun.lock' --exclude='*.bun-build' \
+  gstack/ "$GSTACK_DST/"
+
+for skill_dir in "$GSTACK_DST"/*/; do
+  if [ -f "$skill_dir/SKILL.md" ]; then
+    skill_name="$(basename "$skill_dir")"
+    [ "$skill_name" = "node_modules" ] && continue
+    target="$CLAUDE_DIR/skills/$skill_name"
+    if [ -L "$target" ] || [ ! -e "$target" ]; then
+      ln -snf "gstack/$skill_name" "$target"
+    fi
+  fi
+done
+
+if command -v bun &>/dev/null; then
+  echo "  Building gstack browse binary..."
+  (cd "$GSTACK_DST" && ./setup 2>&1 | sed 's/^/  /')
+else
+  echo "  Note: Install bun (https://bun.sh) then run: cd $GSTACK_DST && ./setup"
+fi
+
 # --- Done ---
 echo ""
 echo "=== Installation Complete ==="
@@ -69,7 +96,8 @@ echo ""
 echo "Installed to: $CLAUDE_DIR"
 echo "  - 15 agents (memory, execution, quality)"
 echo "  - 6 auto-loaded context rules"
-echo "  - 36 skills (Brain-Wave, Ralph, GSD, hardware, review)"
+echo "  - 36+ skills (Brain-Wave, Ralph, GSD, hardware, review)"
+echo "  - 8 gstack skills (browse, qa, review, ship, plan-*, retro)"
 echo "  - 6 auto-sync hooks"
 echo ""
 echo "Source repo: $INSTALL_DIR"
