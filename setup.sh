@@ -9,6 +9,35 @@ echo "=== Brain-and-Co Setup ==="
 echo "Installing from: $REPO_DIR"
 echo "Target: $CLAUDE_DIR"
 
+# --- Check for updates ---
+if [ -d "$REPO_DIR/.git" ] && command -v git &>/dev/null; then
+  echo ""
+  echo "Checking for updates..."
+  git -C "$REPO_DIR" fetch --quiet origin 2>/dev/null || true
+  LOCAL=$(git -C "$REPO_DIR" rev-parse HEAD 2>/dev/null)
+  REMOTE=$(git -C "$REPO_DIR" rev-parse origin/main 2>/dev/null)
+  if [ -n "$LOCAL" ] && [ -n "$REMOTE" ] && [ "$LOCAL" != "$REMOTE" ]; then
+    BEHIND=$(git -C "$REPO_DIR" rev-list --count HEAD..origin/main 2>/dev/null || echo 0)
+    if [ "$BEHIND" -gt 0 ]; then
+      echo "  Update available: $BEHIND commit(s) behind origin/main"
+      read -r -p "  Pull latest changes before installing? [Y/n] " answer
+      if [ -z "$answer" ] || [[ "$answer" =~ ^[Yy] ]]; then
+        git -C "$REPO_DIR" pull --ff-only origin main
+        echo "  Updated to $(git -C "$REPO_DIR" rev-parse --short HEAD)"
+        echo ""
+        echo "  Restarting setup with updated files..."
+        exec "$0" "$@"
+      else
+        echo "  Skipping update, installing current version."
+      fi
+    else
+      echo "  Already up to date."
+    fi
+  else
+    echo "  Already up to date."
+  fi
+fi
+
 # --- Agents ---
 echo ""
 echo "Installing agents..."
