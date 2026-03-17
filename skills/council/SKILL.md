@@ -26,7 +26,7 @@ Inspired by [Karpathy's llm-council](https://github.com/karpathy/llm-council). S
 
 ## What It Does
 
-- Launches 3-4 AI subagents in parallel (gemini-cli, grok-cli, codex-cli, cursor-cli)
+- Launches 4 AI subagents in parallel (gemini-cli, grok-cli, codex-cli, cursor-cli)
 - Each model evaluates the same prompt independently with no cross-contamination
 - Collects all responses and produces a Chairman synthesis
 - Highlights agreements, disagreements, and the recommended approach
@@ -132,9 +132,13 @@ Provide:
 4. What would change your mind
 ```
 
-### Step 3: Launch Subagents in Parallel
+### Step 3: Check Available Tools
 
-Use the Task tool to launch 3-4 subagents simultaneously. Each subagent runs independently with the prepared prompt.
+Read `~/.brain-and-co/config.json` to determine which AI CLIs are available. If the file doesn't exist, assume all 4 are available. Only launch subagents for tools marked `true` in `ai_tools`.
+
+### Step 4: Launch Subagents in Parallel
+
+Use the Task tool to launch subagents simultaneously. Each subagent runs independently with the prepared prompt.
 
 **Subagent configuration:**
 
@@ -143,16 +147,16 @@ Use the Task tool to launch 3-4 subagents simultaneously. Each subagent runs ind
 | Gemini | `gemini-cli` | Google's model |
 | Grok | `grok-cli` | xAI's model |
 | Codex | `codex-cli` | OpenAI's model |
-| Cursor | `cursor-cli` | Optional 4th voice (include for high-stakes decisions) |
+| Cursor | `cursor-cli` | Cursor's multi-model router |
 
-Launch all subagents in a single message using multiple Task tool calls. Each call should:
+Launch all 4 subagents in a single message using multiple Task tool calls. Each call should:
 - Use a descriptive `description` like "Council Member: Gemini evaluating caching strategy"
 - Pass the full prepared prompt
 - NOT share any other model's response
 
-**Important:** If a subagent type is unavailable or fails to respond, proceed with the responses you have. The council works with a minimum of 2 responses.
+**Important:** If a subagent type is unavailable or fails to respond, proceed with the responses you have. The council works with a minimum of 2 responses. Only skip a model if the user's `~/.brain-and-co/config.json` disables it (see setup.sh intake).
 
-### Step 4: Collect Responses
+### Step 5: Collect Responses
 
 Wait for all subagents to complete. Record each response with the model name.
 
@@ -163,7 +167,7 @@ If a subagent times out or errors, note it:
 [Codex]: timed out — proceeding with 2/3 responses
 ```
 
-### Step 5: Chairman Synthesis
+### Step 6: Chairman Synthesis
 
 The primary Claude session acts as Chairman. Analyze all collected responses and produce the synthesis.
 
@@ -183,9 +187,9 @@ The primary Claude session acts as Chairman. Analyze all collected responses and
 - {point where most but not all agree}
 
 ### Disagreements
-| Topic | Model A | Model B | Model C |
+| Topic | Model A | Model B | Model C | Model D |
 |-------|---------|---------|---------|
-| {area} | {position} | {position} | {position} |
+| {area} | {position} | {position} | {position} | {position} |
 
 ### Chairman's Recommendation
 {Synthesized best answer drawing from all responses. Not a compromise — pick the strongest reasoning regardless of which model produced it.}
@@ -209,6 +213,11 @@ The primary Claude session acts as Chairman. Analyze all collected responses and
 <summary>Codex</summary>
 {full response}
 </details>
+
+<details>
+<summary>Cursor</summary>
+{full response}
+</details>
 ```
 
 **For `review` mode:**
@@ -223,9 +232,9 @@ The primary Claude session acts as Chairman. Analyze all collected responses and
 - [{severity}] {issue} — flagged by: {model(s)}
 
 ### Issue Agreement Matrix
-| Issue | Gemini | Grok | Codex | Consensus |
+| Issue | Gemini | Grok | Codex | Cursor | Consensus |
 |-------|--------|------|-------|-----------|
-| {issue} | {Y/N} | {Y/N} | {Y/N} | {N}/{total} |
+| {issue} | {Y/N} | {Y/N} | {Y/N} | {Y/N} | {N}/{total} |
 
 ### Verdicts
 | Model | Verdict | Confidence |
@@ -233,6 +242,7 @@ The primary Claude session acts as Chairman. Analyze all collected responses and
 | Gemini | {verdict} | {confidence} |
 | Grok | {verdict} | {confidence} |
 | Codex | {verdict} | {confidence} |
+| Cursor | {verdict} | {confidence} |
 
 ### Chairman's Verdict
 **{SHIP / SHIP WITH CHANGES / BLOCK}**
@@ -255,6 +265,11 @@ The primary Claude session acts as Chairman. Analyze all collected responses and
 <summary>Codex</summary>
 {full review}
 </details>
+
+<details>
+<summary>Cursor</summary>
+{full review}
+</details>
 ```
 
 **For `debate` mode:**
@@ -271,6 +286,7 @@ The primary Claude session acts as Chairman. Analyze all collected responses and
 | Gemini | {position} | {confidence} |
 | Grok | {position} | {confidence} |
 | Codex | {position} | {confidence} |
+| Cursor | {position} | {confidence} |
 
 ### Strongest Arguments (Across All Positions)
 
@@ -302,6 +318,11 @@ The primary Claude session acts as Chairman. Analyze all collected responses and
 
 <details>
 <summary>Codex</summary>
+{full argument}
+</details>
+
+<details>
+<summary>Cursor</summary>
 {full argument}
 </details>
 ```

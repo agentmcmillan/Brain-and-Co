@@ -139,6 +139,116 @@ else
   echo "  Skipped (gstack/ not found in repo)"
 fi
 
+# --- Tool & Service Configuration ---
+echo ""
+echo "Configuring available tools and services..."
+CONFIG_DIR="$HOME/.brain-and-co"
+CONFIG_FILE="$CONFIG_DIR/config.json"
+mkdir -p "$CONFIG_DIR"
+
+# Start with existing config or empty
+if [ -f "$CONFIG_FILE" ]; then
+  echo "  Found existing config at $CONFIG_FILE"
+  read -r -p "  Reconfigure? [y/N] " reconfig
+  if [ -z "$reconfig" ] || [[ ! "$reconfig" =~ ^[Yy] ]]; then
+    echo "  Keeping existing config."
+    SKIP_INTAKE=true
+  fi
+fi
+
+if [ "${SKIP_INTAKE:-false}" = "false" ]; then
+  echo ""
+  echo "Which AI CLI tools do you have installed? (y/n for each)"
+  echo ""
+
+  ask_yn() {
+    local prompt="$1" default="${2:-n}"
+    local answer
+    if [ "$default" = "y" ]; then
+      read -r -p "  $prompt [Y/n] " answer
+      [ -z "$answer" ] || [[ "$answer" =~ ^[Yy] ]]
+    else
+      read -r -p "  $prompt [y/N] " answer
+      [[ "$answer" =~ ^[Yy] ]]
+    fi
+  }
+
+  # Detect installed CLIs
+  HAS_GEMINI=false; command -v gemini &>/dev/null && HAS_GEMINI=true
+  HAS_GROK=false; command -v grok &>/dev/null && HAS_GROK=true
+  HAS_CODEX=false; command -v codex &>/dev/null && HAS_CODEX=true
+  HAS_CURSOR=false; command -v cursor &>/dev/null && HAS_CURSOR=true
+
+  default_yn() { if $1; then echo "y"; else echo "n"; fi; }
+
+  GEMINI_HINT=""; $HAS_GEMINI && GEMINI_HINT=" (detected)"
+  GROK_HINT=""; $HAS_GROK && GROK_HINT=" (detected)"
+  CODEX_HINT=""; $HAS_CODEX && CODEX_HINT=" (detected)"
+  CURSOR_HINT=""; $HAS_CURSOR && CURSOR_HINT=" (detected)"
+
+  ask_yn "Gemini CLI${GEMINI_HINT}?" "$(default_yn $HAS_GEMINI)" && USE_GEMINI=true || USE_GEMINI=false
+  ask_yn "Grok CLI${GROK_HINT}?" "$(default_yn $HAS_GROK)" && USE_GROK=true || USE_GROK=false
+  ask_yn "Codex CLI${CODEX_HINT}?" "$(default_yn $HAS_CODEX)" && USE_CODEX=true || USE_CODEX=false
+  ask_yn "Cursor CLI${CURSOR_HINT}?" "$(default_yn $HAS_CURSOR)" && USE_CURSOR=true || USE_CURSOR=false
+
+  echo ""
+  echo "Which API keys / services do you have?"
+  echo ""
+
+  ask_yn "OpenRouter API key (for /council web UI)?" && HAS_OPENROUTER=true || HAS_OPENROUTER=false
+  ask_yn "Anthropic API key?" "y" && HAS_ANTHROPIC=true || HAS_ANTHROPIC=false
+  ask_yn "OpenAI API key?" && HAS_OPENAI=true || HAS_OPENAI=false
+
+  echo ""
+  echo "Infrastructure (optional — for NAS deployment):"
+  echo ""
+
+  ask_yn "NAS at CONTAINER_HOST_IP (Brain-and-Co infrastructure)?" && HAS_NAS=true || HAS_NAS=false
+  ask_yn "MiroFish prediction engine?" && HAS_MIROFISH=true || HAS_MIROFISH=false
+  ask_yn "arxiv-sanity-lite (paper discovery)?" && HAS_ARXIV=true || HAS_ARXIV=false
+
+  # Write config
+  cat > "$CONFIG_FILE" << CONF
+{
+  "version": 1,
+  "configured_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "ai_tools": {
+    "gemini": $USE_GEMINI,
+    "grok": $USE_GROK,
+    "codex": $USE_CODEX,
+    "cursor": $USE_CURSOR
+  },
+  "api_keys": {
+    "openrouter": $HAS_OPENROUTER,
+    "anthropic": $HAS_ANTHROPIC,
+    "openai": $HAS_OPENAI
+  },
+  "infrastructure": {
+    "nas": $HAS_NAS,
+    "mirofish": $HAS_MIROFISH,
+    "arxiv": $HAS_ARXIV
+  }
+}
+CONF
+
+  echo ""
+  echo "  Config saved to $CONFIG_FILE"
+
+  # Show what's enabled
+  ENABLED_TOOLS=""
+  $USE_GEMINI && ENABLED_TOOLS="$ENABLED_TOOLS gemini"
+  $USE_GROK && ENABLED_TOOLS="$ENABLED_TOOLS grok"
+  $USE_CODEX && ENABLED_TOOLS="$ENABLED_TOOLS codex"
+  $USE_CURSOR && ENABLED_TOOLS="$ENABLED_TOOLS cursor"
+
+  if [ -n "$ENABLED_TOOLS" ]; then
+    echo "  AI tools:$ENABLED_TOOLS"
+    echo "  /council will use:$ENABLED_TOOLS"
+  else
+    echo "  No AI CLI tools enabled — /council will be unavailable"
+  fi
+fi
+
 # --- Summary ---
 AGENT_COUNT=$(ls -1 "$REPO_DIR"/.claude/agents/*.md 2>/dev/null | wc -l | tr -d ' ')
 RULE_COUNT=$(ls -1 "$REPO_DIR"/.claude/rules/*.md 2>/dev/null | wc -l | tr -d ' ')
