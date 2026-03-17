@@ -1,0 +1,111 @@
+# llm-council — Multi-LLM consensus via OpenRouter
+# Deploy: docker compose -f docker-compose.council.yml up -d
+# Source: https://github.com/karpathy/llm-council
+
+services:
+  council-backend:
+    image: python:3.11-slim
+    restart: unless-stopped
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        set -e
+
+        apt-get update -qq && apt-get install -y -qq git curl > /dev/null 2>&1
+
+        # Clone repo if not already present
+        if [ ! -f /app/main.py ]; then
+          git clone --depth 1 https://github.com/karpathy/llm-council.git /app
+        fi
+
+        cd /app
+
+        pip install -q -r requirements.txt 2>/dev/null || pip install -q fastapi uvicorn httpx pydantic
+
+        echo "[council] Starting FastAPI backend on port 5003..."
+        uvicorn main:app --host 0.0.0.0 --port 5003
+    environment:
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:?Set OPENROUTER_API_KEY in .env}
+      # Models to query (comma-separated OpenRouter model IDs)
+      COUNCIL_MODELS: ${COUNCIL_MODELS:-openai/gpt-4o,anthropic/claude-sonnet-4,google/gemini-2.0-flash,meta-llama/llama-3.1-405b-instruct}
+      # Maximum concurrent LLM requests
+      COUNCIL_MAX_CONCURRENT: ${COUNCIL_MAX_CONCURRENT:-5}
+      # Response timeout per model (seconds)
+      COUNCIL_TIMEOUT: ${COUNCIL_TIMEOUT:-60}
+    volumes:
+      - council_cache:/data/cache
+      - council_app:/app
+    ports:
+      - "5003:5003"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:5003/health || curl -sf http://localhost:5003/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    networks:
+      - brain-and-co
+
+  council-frontend:
+    image: node:20-alpine
+    restart: unless-stopped
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -e
+
+        apk add --no-cache git > /dev/null 2>&1
+
+        # Clone frontend if not already present
+        if [ ! -f /app/package.json ]; then
+          git clone --depth 1 https://github.com/karpathy/llm-council.git /tmp/council
+          cp -r /tmp/council/frontend/* /app/ 2>/dev/null || cp -r /tmp/council/web/* /app/ 2>/dev/null || true
+          rm -rf /tmp/council
+        fi
+
+        cd /app
+
+        if [ -f package.json ]; then
+          npm install --silent
+          echo "[council-frontend] Starting React frontend on port 3002..."
+          VITE_API_URL=http://council-backend:5003 PORT=3002 npm run dev -- --host 0.0.0.0 --port 3002
+        else
+          echo "[council-frontend] No frontend package found, serving static fallback..."
+          npx -y serve -l 3002 -s /app
+        fi
+    environment:
+      VITE_API_URL: http://council-backend:5003
+      PORT: "3002"
+    volumes:
+      - council_frontend_app:/app
+    ports:
+      - "3002:3002"
+    depends_on:
+      council-backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3002/ > /dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    networks:
+      - brain-and-co
+
+volumes:
+  council_cache:
+  council_app:
+  council_frontend_app:
+
+networks:
+  brain-and-co:
+    external: true
+    name: brain-and-co_default

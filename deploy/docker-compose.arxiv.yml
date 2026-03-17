@@ -1,0 +1,91 @@
+# arxiv-sanity-lite — AI paper discovery
+# Deploy: docker compose -f docker-compose.arxiv.yml up -d
+# Source: https://github.com/karpathy/arxiv-sanity-lite
+
+services:
+  arxiv-sanity:
+    image: python:3.11-slim
+    restart: unless-stopped
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        set -e
+
+        # Install system dependencies
+        apt-get update -qq && apt-get install -y -qq git cron curl > /dev/null 2>&1
+
+        # Clone repo if not already present
+        if [ ! -f /app/serve.py ]; then
+          git clone --depth 1 https://github.com/karpathy/arxiv-sanity-lite.git /app
+        fi
+
+        cd /app
+
+        # Install Python dependencies
+        pip install -q -r requirements.txt
+
+        # Seed database if empty (initial fetch)
+        if [ ! -f /data/db.p ]; then
+          echo "[arxiv-sanity] Running initial paper fetch..."
+          python fetch_papers.py || true
+          python compute_paper_features.py || true
+        fi
+
+        # Set up daily cron: fetch new papers, recompute features, send digest
+        cat > /etc/cron.d/arxiv-daily << 'CRON'
+        # Fetch new papers from arxiv every day at 06:00 UTC
+        0 6 * * * cd /app && python fetch_papers.py >> /var/log/arxiv-fetch.log 2>&1
+
+        # Recompute features/similarities at 06:30 UTC
+        30 6 * * * cd /app && python compute_paper_features.py >> /var/log/arxiv-features.log 2>&1
+
+        # Send daily digest email at 07:00 UTC (if SMTP configured)
+        0 7 * * * cd /app && python send_digest.py >> /var/log/arxiv-digest.log 2>&1
+        CRON
+        chmod 0644 /etc/cron.d/arxiv-daily
+        crontab /etc/cron.d/arxiv-daily
+
+        # Start cron daemon in background
+        cron
+
+        # Launch Flask app
+        echo "[arxiv-sanity] Starting Flask app on port 5002..."
+        python serve.py --port 5002 --host 0.0.0.0
+    environment:
+      # arxiv categories to track (space-separated)
+      ARXIV_CATEGORIES: ${ARXIV_CATEGORIES:-cs.AI cs.LG cs.CL cs.CV stat.ML}
+      # Maximum papers to fetch per run
+      ARXIV_MAX_PAPERS: ${ARXIV_MAX_PAPERS:-2000}
+      # SMTP config for daily digest emails
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-arxiv@example.com}
+      DIGEST_TO: ${DIGEST_TO:-you@example.com}
+    volumes:
+      - arxiv_data:/data
+      - arxiv_app:/app
+    ports:
+      - "5002:5002"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:5002/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    networks:
+      - brain-and-co
+
+volumes:
+  arxiv_data:
+  arxiv_app:
+
+networks:
+  brain-and-co:
+    external: true
+    name: brain-and-co_default

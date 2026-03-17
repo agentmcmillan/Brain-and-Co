@@ -1,0 +1,70 @@
+# MiroFish — Swarm Intelligence Predictive Simulation
+#
+# Deploy alongside the main Brain-and-Co stack:
+#   docker compose -f docker-compose.yml -f deploy/docker-compose.mirofish.yml up -d
+#
+# Ports:
+#   5001 — MiroFish backend API (Flask)
+#   3001 — MiroFish frontend UI
+#   3002 — MCP wrapper (supergateway → streamable HTTP)
+
+services:
+  # MiroFish backend + simulation engine
+  mirofish:
+    image: 666ghj/mirofish:latest
+    restart: unless-stopped
+    environment:
+      # LLM provider for swarm agents — set at least one
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      # Optional: point to a local Ollama instance for cheaper simulations
+      OLLAMA_HOST: ${OLLAMA_HOST:-http://host.docker.internal:11434}
+      # Simulation defaults
+      MIROFISH_MAX_AGENTS: ${MIROFISH_MAX_AGENTS:-2000}
+      MIROFISH_DATA_DIR: /data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - mirofish_data:/data
+    ports:
+      - "127.0.0.1:5001:5001"
+      - "127.0.0.1:3001:3001"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5001/health 2>/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: "4"
+          memory: 4G
+        reservations:
+          memory: 1G
+
+  # MCP wrapper — exposes MiroFish REST API as MCP tools via supergateway
+  mirofish-mcp:
+    build:
+      context: ../wrappers/mirofish
+    restart: unless-stopped
+    depends_on:
+      mirofish:
+        condition: service_healthy
+    environment:
+      MIROFISH_BACKEND_URL: http://mirofish:5001
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/health 2>/dev/null | grep -q ok"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    ports:
+      - "127.0.0.1:3002:3000"
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+volumes:
+  mirofish_data:

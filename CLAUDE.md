@@ -9,18 +9,18 @@ Unified platform: MCP infrastructure + cross-agent memory + local knowledge pers
 | `gateway/` | MCP Gateway — FastMCP proxy aggregating backend servers (port 9000) |
 | `memento/` | Memento MCP — Cross-agent semantic memory (PostgreSQL + pgvector + Redis) |
 | `tools/` | FastMCP Tools — Fleet status, Signal messaging, config management |
-| `wrappers/` | Stdio-to-HTTP wrappers for GitHub, Signal, Docker, Ollama, SSH, RSS, Cloudflare |
+| `wrappers/` | Stdio-to-HTTP wrappers for GitHub, Signal, Docker, Ollama, SSH, RSS, Cloudflare, MiroFish |
 | `caddy/` | Reverse proxy with automatic TLS + mTLS |
 | `client-configs/` | Client connection configs for Claude Code |
 | `deploy/` | Deployment scripts for NAS |
 | `.claude/agents/` | 15 agent definitions (memory, execution, quality) |
 | `.claude/rules/` | 6 auto-loaded context rules |
-| `skills/` | 30+ Claude Code skills (memory, execution, hardware, review) |
+| `skills/` | 35+ Claude Code skills (memory, execution, hardware, review, research, prediction) |
 | `gstack/` | Dev workflow skills: browse, QA, review, ship, plan reviews, retro |
 | `integrations/` | Hooks, agent-teams, ClawHub, Gastown, prompts |
 | `ralph/` | Autonomous execution system (Bart + Ralph + GSD) |
 | `symphony/` | Autonomous agent orchestrator (task queuing, heartbeat, PR creation) |
-| `docs/` | Reference images and diagrams |
+| `docs/` | Reference images, diagrams, and external tool docs |
 
 ## Quick Start
 
@@ -105,7 +105,7 @@ Requires [Bun](https://bun.sh) to build the headless browser binary. See `gstack
 
 ## Architecture
 
-- **107+ tools** across 9+ namespaces
+- **115+ tools** across 12+ namespaces
 - **Brain-Wave**: Alpha-Wave (indexes) -> Beta-Wave (maps) -> REM (sessions)
 - **Memento**: Cross-agent memory via `remember`/`recall`/`reflect`/`context`
 - **Gateway**: Single endpoint aggregating all backend MCP servers
@@ -122,6 +122,23 @@ Optional:
 - `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` — Cloudflare MCP
 - `OLLAMA_HOST` — Override ollama endpoint
 - `SSH_KEYS_PATH` — Path to SSH keys directory
+- `OPENROUTER_API_KEY` — LLM Council multi-model queries
+- `MIROFISH_URL` — MiroFish prediction engine (default: `http://CONTAINER_HOST_IP:5001`)
+
+## Karpathy Tools & External Integrations
+
+| Skill | Command | Source | Purpose |
+|-------|---------|--------|---------|
+| autoresearch | `/autoresearch` | [karpathy/autoresearch](https://github.com/karpathy/autoresearch) | Autonomous experimentation loops |
+| council | `/council` | [karpathy/llm-council](https://github.com/karpathy/llm-council) | Multi-LLM consensus decisions |
+| rendergit | `/rendergit` | [karpathy/rendergit](https://github.com/karpathy/rendergit) | Flatten repos for LLM consumption |
+| tokenize | `/tokenize` | [karpathy/minbpe](https://github.com/karpathy/minbpe) | Token counting and cost estimation |
+| arxiv | `/arxiv` | [karpathy/arxiv-sanity-lite](https://github.com/karpathy/arxiv-sanity-lite) | AI paper discovery and recommendations |
+| predict | `/predict` | [666ghj/MiroFish](https://github.com/666ghj/MiroFish) | Swarm intelligence predictions |
+
+Deploy services: `docker compose -f deploy/docker-compose.mirofish.yml up -d`
+
+See also: `docs/nanochat-reference.md` for LLM training pipeline reference.
 
 ## Hardware Skills
 
