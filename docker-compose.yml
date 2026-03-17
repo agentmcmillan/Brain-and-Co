@@ -95,10 +95,10 @@ services:
     environment:
       MCP_HOST: "0.0.0.0"
       MCP_PORT: "8090"
-      SIGNAL_API_URL: ${SIGNAL_API_URL:-http://CONTAINER_HOST_IP:8083}
-      SIGNAL_BOT_NUMBER: ${SIGNAL_BOT_NUMBER:-+1XXXXXXXXXX}
-      SIGNAL_RECIPIENT: ${SIGNAL_RECIPIENT:-+1XXXXXXXXXX}
-      NAS_HOST: ${NAS_HOST:-CONTAINER_HOST_IP}
+      SIGNAL_API_URL: ${SIGNAL_API_URL:-http://localhost:8083}
+      SIGNAL_BOT_NUMBER: ${SIGNAL_BOT_NUMBER:-}
+      SIGNAL_RECIPIENT: ${SIGNAL_RECIPIENT:-}
+      CONTAINER_HOST: ${CONTAINER_HOST:-localhost}
       MEMENTO_URL: "http://memento:56332"
       MEMENTO_ACCESS_KEY: ${MEMENTO_ACCESS_KEY:?Set MEMENTO_ACCESS_KEY in .env}
     volumes:
@@ -197,9 +197,9 @@ services:
       context: ./wrappers/signal
     restart: unless-stopped
     environment:
-      SIGNAL_API_URL: ${SIGNAL_API_URL:-http://CONTAINER_HOST_IP:8083}
-      SIGNAL_SENDER: ${SIGNAL_SENDER:-+1XXXXXXXXXX}
-      SIGNAL_RECIPIENT: ${SIGNAL_RECIPIENT:-+1XXXXXXXXXX}
+      SIGNAL_API_URL: ${SIGNAL_API_URL:-http://localhost:8083}
+      SIGNAL_SENDER: ${SIGNAL_SENDER:-}
+      SIGNAL_RECIPIENT: ${SIGNAL_RECIPIENT:-}
     volumes:
       - ${AI_SIGNALS_PATH:-./wrappers/signal/placeholder}:/app/signal-mcp:ro
     healthcheck:
@@ -319,7 +319,7 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     environment:
-      DOMAIN: ${DOMAIN:-YOUR_DOMAIN}
+      DOMAIN: ${DOMAIN:-localhost}
 
 volumes:
   postgres_data:

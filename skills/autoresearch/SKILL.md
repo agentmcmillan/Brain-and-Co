@@ -141,7 +141,7 @@ This creates a Symphony task with:
 
 The Symphony task runs autonomously. Monitor progress:
 ```bash
-curl http://CONTAINER_HOST_IP:9100/tasks/<task-id>
+curl http://${CONTAINER_HOST_IP}:9100/tasks/<task-id>
 ```
 
 ## Local Execution (Without Symphony)

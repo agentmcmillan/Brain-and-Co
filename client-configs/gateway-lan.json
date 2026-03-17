@@ -4,7 +4,7 @@
   "mcpServers": {
     "mcp-gateway": {
       "type": "http",
-      "url": "http://CONTAINER_HOST_IP:9000/mcp"
+      "url": "http://<CONTAINER_HOST_IP>:9000/mcp"
     }
   }
 }

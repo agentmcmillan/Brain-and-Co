@@ -98,7 +98,7 @@ class WorkspaceManager:
         base = self.config.workspace.network_mcp_url
         mcp_servers["memento"] = {
             "type": "sse",
-            "url": f"{base}:{self.config.workspace.memento_port}/sse?accessKey=YOUR_MEMENTO_ACCESS_KEY",
+            "url": f"{base}:{self.config.workspace.memento_port}/sse?accessKey={self.config.workspace.memento_access_key}",
         }
         mcp_servers["network-tools"] = {
             "type": "sse",

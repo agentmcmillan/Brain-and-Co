@@ -123,7 +123,7 @@ Optional:
 - `OLLAMA_HOST` — Override ollama endpoint
 - `SSH_KEYS_PATH` — Path to SSH keys directory
 - `OPENROUTER_API_KEY` — LLM Council multi-model queries
-- `MIROFISH_URL` — MiroFish prediction engine (default: `http://CONTAINER_HOST_IP:5001`)
+- `MIROFISH_URL` — MiroFish prediction engine endpoint
 
 ## Karpathy Tools & External Integrations
 

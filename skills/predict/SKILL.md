@@ -15,7 +15,7 @@ metadata:
     bins:
       - curl
     env:
-      - MIROFISH_URL (optional, defaults to http://CONTAINER_HOST_IP:5001)
+      - MIROFISH_URL (optional, defaults to http://${CONTAINER_HOST_IP}:5001)
   os:
     - darwin
     - linux
@@ -39,7 +39,7 @@ Run predictive simulations using MiroFish swarm intelligence — thousands of AI
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `MIROFISH_URL` | `http://CONTAINER_HOST_IP:5001` | MiroFish API endpoint |
+| `MIROFISH_URL` | `http://${CONTAINER_HOST_IP}:5001` | MiroFish API endpoint |
 
 ## Process
 
@@ -64,7 +64,7 @@ Determine the seed input based on what the user provides:
 POST to MiroFish API to create a new simulation:
 
 ```bash
-MIROFISH_URL="${MIROFISH_URL:-http://CONTAINER_HOST_IP:5001}"
+MIROFISH_URL="${MIROFISH_URL:-http://${CONTAINER_HOST_IP}:5001}"
 
 curl -s -X POST "$MIROFISH_URL/api/simulations" \
   -H "Content-Type: application/json" \
@@ -121,7 +121,7 @@ Poll every 30 seconds. Status values: `queued`, `running`, `completed`, `failed`
 If Symphony is available, register a monitoring task:
 
 ```bash
-curl -s -X POST "http://CONTAINER_HOST_IP:9100/tasks" \
+curl -s -X POST "http://${CONTAINER_HOST_IP}:9100/tasks" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $SYMPHONY_API_TOKEN" \
   -d '{

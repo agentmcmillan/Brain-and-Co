@@ -2,12 +2,12 @@
 # Deploy Brain-and-Co to container host
 set -e
 
-NAS_HOST="CONTAINER_HOST_IP"
-NAS_USER="claude"
-DEPLOY_DIR="~/brain-and-co"
+DEPLOY_HOST="${DEPLOY_HOST:?Set DEPLOY_HOST to your container host IP}"
+DEPLOY_USER="${DEPLOY_USER:-claude}"
+DEPLOY_DIR="${DEPLOY_DIR:-~/brain-and-co}"
 
 echo "=== Brain-and-Co Deployment ==="
-echo "Target: ${NAS_USER}@${NAS_HOST}:${DEPLOY_DIR}"
+echo "Target: ${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_DIR}"
 
 # Create deploy tarball (exclude secrets, certs, git, local-only dirs)
 echo "Creating deployment archive..."
@@ -31,12 +31,12 @@ tar czf /tmp/brain-and-co-deploy.tar.gz \
 
 # Copy to container host
 echo "Copying to container host..."
-ssh "${NAS_USER}@${NAS_HOST}" "mkdir -p ${DEPLOY_DIR}"
-scp /tmp/brain-and-co-deploy.tar.gz "${NAS_USER}@${NAS_HOST}:${DEPLOY_DIR}/deploy.tar.gz"
+ssh "${DEPLOY_USER}@${DEPLOY_HOST}" "mkdir -p ${DEPLOY_DIR}"
+scp /tmp/brain-and-co-deploy.tar.gz "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_DIR}/deploy.tar.gz"
 
 # Extract and deploy
 echo "Extracting and deploying..."
-ssh "${NAS_USER}@${NAS_HOST}" << 'REMOTE'
+ssh "${DEPLOY_USER}@${DEPLOY_HOST}" << 'REMOTE'
 cd ~/brain-and-co
 # Atomic extraction: unpack to temp dir, then overlay (prevents partial state on failure)
 TMPDIR=$(mktemp -d ./deploy-XXXXXX)
@@ -109,10 +109,10 @@ curl -sf --max-time 10 http://localhost:9000/health | python3 -c "import sys,jso
 
 echo ""
 echo "=== Deployment Complete ==="
-echo "Memento MCP:   http://CONTAINER_HOST_IP:56332/mcp"
-echo "FastMCP Tools: http://CONTAINER_HOST_IP:8091/mcp"
-echo "MCP Gateway:   http://CONTAINER_HOST_IP:9000/mcp"
-echo "CF Tunnel:     https://YOUR_DOMAIN/gateway/mcp"
+echo "Memento MCP:   http://localhost:56332/mcp"
+echo "FastMCP Tools: http://localhost:8091/mcp"
+echo "MCP Gateway:   http://localhost:9000/mcp"
+echo "CF Tunnel:     https://\${DOMAIN}/gateway/mcp (if configured)"
 REMOTE
 
 # Cleanup

@@ -128,7 +128,7 @@ TEMPLATE "{{ .System }}\n\n{{ .Prompt }}"
 ### 3. Register with Ollama on the container host
 
 ```bash
-ssh claude@CONTAINER_HOST_IP "cd /path/to/model && ollama create nanochat -f Modelfile"
+ssh ${DEPLOY_USER}@${CONTAINER_HOST_IP} "cd /path/to/model && ollama create nanochat -f Modelfile"
 ```
 
 ### 4. Query via the Ollama MCP wrapper
@@ -136,7 +136,7 @@ ssh claude@CONTAINER_HOST_IP "cd /path/to/model && ollama create nanochat -f Mod
 Once registered, the model is available through Brain-and-Co's existing Ollama MCP wrapper:
 
 ```
-Ollama MCP endpoint: http://CONTAINER_HOST_IP:11434
+Ollama MCP endpoint: http://${CONTAINER_HOST_IP}:11434
 Model name: nanochat
 ```
 

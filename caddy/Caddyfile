@@ -3,7 +3,7 @@
 # mTLS block on :443 kept for direct LAN access with client certs
 
 {
-	email admin@example.com
+	email {$ACME_EMAIL:admin@example.com}
 }
 
 # Shared route handlers — imported by both server blocks
@@ -67,7 +67,7 @@
 }
 
 # Primary: HTTP routes (Cloudflare Tunnel traffic lands here)
-YOUR_DOMAIN:80 {
+{$DOMAIN:localhost}:80 {
 	# Log all requests for audit trail
 	log {
 		output file /data/access.log {
@@ -82,7 +82,7 @@ YOUR_DOMAIN:80 {
 }
 
 # Secondary: mTLS-protected HTTPS for direct LAN access
-YOUR_DOMAIN {
+{$DOMAIN:localhost} {
 	tls {
 		client_auth {
 			mode require_and_verify

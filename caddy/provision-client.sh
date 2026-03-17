@@ -128,7 +128,7 @@ cat << EOF
   "mcpServers": {
     "mcp-gateway": {
       "type": "http",
-      "url": "https://YOUR_DOMAIN/gateway/mcp"
+      "url": "https://\${DOMAIN:-YOUR_DOMAIN}/gateway/mcp"
     }
   }
 }
@@ -136,4 +136,4 @@ EOF
 echo ""
 echo "NOTE: The client must present the .crt/.key or .p12 when connecting via mTLS."
 echo "For curl testing:"
-echo "  curl --cert ${CERT_DIR}/${NAME}.crt --key ${CERT_DIR}/${NAME}.key https://YOUR_DOMAIN/health"
+echo "  curl --cert ${CERT_DIR}/${NAME}.crt --key ${CERT_DIR}/${NAME}.key https://\${DOMAIN:-YOUR_DOMAIN}/health"

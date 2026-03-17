@@ -28,10 +28,10 @@ mcp = FastMCP(
 
 # --- Configuration ---
 
-SIGNAL_API_URL = os.environ.get("SIGNAL_API_URL", "http://CONTAINER_HOST_IP:8083")
-SIGNAL_BOT_NUMBER = os.environ.get("SIGNAL_BOT_NUMBER", "+1XXXXXXXXXX")
-SIGNAL_RECIPIENT = os.environ.get("SIGNAL_RECIPIENT", "+1XXXXXXXXXX")
-NAS_HOST = os.environ.get("NAS_HOST", "CONTAINER_HOST_IP")
+SIGNAL_API_URL = os.environ.get("SIGNAL_API_URL", "http://localhost:8083")
+SIGNAL_BOT_NUMBER = os.environ.get("SIGNAL_BOT_NUMBER", "")
+SIGNAL_RECIPIENT = os.environ.get("SIGNAL_RECIPIENT", "")
+CONTAINER_HOST = os.environ.get("CONTAINER_HOST", "localhost")
 MEMENTO_URL = os.environ.get("MEMENTO_URL", "http://memento:56332")
 MEMENTO_ACCESS_KEY = os.environ.get("MEMENTO_ACCESS_KEY", "")
 
@@ -79,13 +79,21 @@ async def signal_send(message: str, recipient: str = "") -> str:
 # Device / Fleet Status Tools
 # ============================================================
 
-# Known devices on the network
-KNOWN_DEVICES = {
-    "container-host": {"host": "CONTAINER_HOST_IP", "name": "Container Host (Ubuntu)", "ports": [22, 8083, 11434]},
-    "proxmox": {"host": "PROXMOX_HOST_IP", "name": "Proxmox Host", "ports": [22, 8006]},
-    "gitea": {"host": "GITEA_HOST_IP", "name": "Gitea Server", "ports": [22, 3000]},
-    "mac-studio": {"host": "MAC_STUDIO_IP", "name": "Mac Studio", "ports": [22]},
-}
+# Known devices on the network (loaded from env or shared config at runtime)
+# Default registry is empty — devices are registered via fleet_register() or shared config
+KNOWN_DEVICES = {}
+
+def _load_fleet_from_config():
+    """Load fleet devices from shared config on startup."""
+    config = _load_config()
+    for did, info in config.get("fleet_registry", {}).items():
+        KNOWN_DEVICES[did] = {
+            "host": info["host"],
+            "name": info["name"],
+            "ports": info.get("ports", [22]),
+        }
+
+_load_fleet_from_config()
 
 
 def _check_port(host: str, port: int, timeout: float = 2.0) -> bool:
@@ -195,7 +203,7 @@ def network_info() -> dict:
         "services": {
             "memento_mcp": f"{MEMENTO_URL}/health",
             "signal_api": SIGNAL_API_URL,
-            "fastmcp_tools": f"http://{NAS_HOST}:8091",
+            "fastmcp_tools": f"http://{CONTAINER_HOST}:8091",
         },
         "known_devices": list(KNOWN_DEVICES.keys()),
     }

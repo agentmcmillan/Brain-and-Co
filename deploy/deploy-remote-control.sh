@@ -2,18 +2,18 @@
 # Deploy Claude Code Remote Control as a systemd user service on container host
 set -e
 
-NAS_HOST="CONTAINER_HOST_IP"
-NAS_USER="claude"
+DEPLOY_HOST="${DEPLOY_HOST:?Set DEPLOY_HOST to your container host IP}"
+DEPLOY_USER="${DEPLOY_USER:-claude}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SERVICE_FILE="$SCRIPT_DIR/claude-remote-control.service"
 
 echo "=== Claude Code Remote Control Deployment ==="
-echo "Target: ${NAS_USER}@${NAS_HOST}"
+echo "Target: ${DEPLOY_USER}@${DEPLOY_HOST}"
 
 # 1. Verify prerequisites on container host
 echo ""
 echo "Checking prerequisites..."
-ssh "${NAS_USER}@${NAS_HOST}" << 'CHECK'
+ssh "${DEPLOY_USER}@${DEPLOY_HOST}" << 'CHECK'
 set -e
 echo -n "  Claude CLI: "
 claude --version 2>&1 | head -1
@@ -40,11 +40,11 @@ CHECK
 # 2. Enable linger (allows user services to run after logout)
 echo ""
 echo "Enabling linger for user ${NAS_USER}..."
-ssh "${NAS_USER}@${NAS_HOST}" << 'LINGER'
-LINGER_STATUS=$(loginctl show-user claude -p Linger --value 2>/dev/null || echo "no")
+ssh "${DEPLOY_USER}@${DEPLOY_HOST}" << 'LINGER'
+LINGER_STATUS=$(loginctl show-user $(whoami) -p Linger --value 2>/dev/null || echo "no")
 if [ "$LINGER_STATUS" = "no" ]; then
     echo "  Requesting linger enable (requires sudo)..."
-    sudo loginctl enable-linger claude
+    sudo loginctl enable-linger $(whoami)
     echo "  Linger enabled"
 else
     echo "  Linger already enabled"
@@ -55,7 +55,7 @@ LINGER
 echo ""
 echo "Installing systemd user service..."
 scp "$SERVICE_FILE" "${NAS_USER}@${NAS_HOST}:/tmp/claude-remote-control.service"
-ssh "${NAS_USER}@${NAS_HOST}" << 'INSTALL'
+ssh "${DEPLOY_USER}@${DEPLOY_HOST}" << 'INSTALL'
 mkdir -p ~/.config/systemd/user
 mv /tmp/claude-remote-control.service ~/.config/systemd/user/
 systemctl --user daemon-reload
@@ -66,7 +66,7 @@ INSTALL
 # 4. Start (or restart) the service
 echo ""
 echo "Starting service..."
-ssh "${NAS_USER}@${NAS_HOST}" << 'START'
+ssh "${DEPLOY_USER}@${DEPLOY_HOST}" << 'START'
 systemctl --user restart claude-remote-control.service
 sleep 3
 STATUS=$(systemctl --user is-active claude-remote-control.service 2>/dev/null || echo "unknown")
@@ -81,7 +81,7 @@ if [ "$STATUS" = "active" ]; then
 else
     echo ""
     echo "  WARNING: Service not active. Check logs:"
-    echo "    ssh claude@CONTAINER_HOST_IP journalctl --user -u claude-remote-control -f"
+    echo "    ssh ${DEPLOY_USER}@${DEPLOY_HOST} journalctl --user -u claude-remote-control -f"
 fi
 START
 

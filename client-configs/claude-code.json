@@ -4,11 +4,11 @@
   "mcpServers": {
     "memento": {
       "type": "sse",
-      "url": "http://CONTAINER_HOST_IP:56332/sse?accessKey=YOUR_MEMENTO_ACCESS_KEY"
+      "url": "http://<CONTAINER_HOST_IP>:56332/sse?accessKey=<MEMENTO_ACCESS_KEY>"
     },
     "network-tools": {
       "type": "sse",
-      "url": "http://CONTAINER_HOST_IP:8091/mcp"
+      "url": "http://<CONTAINER_HOST_IP>:8091/mcp"
     }
   }
 }

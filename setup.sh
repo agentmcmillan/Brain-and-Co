@@ -205,10 +205,16 @@ if [ "${SKIP_INTAKE:-false}" = "false" ]; then
 
   ask_yn "Container host (Brain-and-Co infrastructure)?" && HAS_CONTAINER_HOST=true || HAS_CONTAINER_HOST=false
 
-  CONTAINER_HOST_IP="CONTAINER_HOST_IP"
+  CONTAINER_HOST_IP=""
+  DEPLOY_USER="claude"
   if $HAS_CONTAINER_HOST; then
-    read -r -p "  Container host IP [CONTAINER_HOST_IP]: " custom_ip
-    [ -n "$custom_ip" ] && CONTAINER_HOST_IP="$custom_ip"
+    read -r -p "  Container host IP: " CONTAINER_HOST_IP
+    if [ -z "$CONTAINER_HOST_IP" ]; then
+      echo "  ERROR: Container host IP is required when container host is enabled."
+      exit 1
+    fi
+    read -r -p "  SSH username [claude]: " custom_user
+    [ -n "$custom_user" ] && DEPLOY_USER="$custom_user"
   fi
 
   ask_yn "MiroFish prediction engine?" && HAS_MIROFISH=true || HAS_MIROFISH=false
@@ -240,7 +246,7 @@ if [ "${SKIP_INTAKE:-false}" = "false" ]; then
   "servers": {
     "container_host": {
       "host": "$CONTAINER_HOST_IP",
-      "ssh_user": "claude",
+      "ssh_user": "$DEPLOY_USER",
       "services": {
         "memento":       { "port": 56332, "protocol": "http", "enabled": $HAS_CONTAINER_HOST },
         "network_tools": { "port": 8091,  "protocol": "http", "enabled": $HAS_CONTAINER_HOST },

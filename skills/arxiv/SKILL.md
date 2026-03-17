@@ -48,7 +48,7 @@ Parse the user input:
 
 ```bash
 # Query the arxiv-sanity-lite API
-curl -s "http://CONTAINER_HOST_IP:5002/search" \
+curl -s "http://${CONTAINER_HOST_IP}:5002/search" \
   -X POST \
   -H "Content-Type: application/json" \
   -d '{"query": "<search_terms>"}'
@@ -57,7 +57,7 @@ curl -s "http://CONTAINER_HOST_IP:5002/search" \
 If the API does not expose a JSON endpoint, fall back to scraping the search page:
 
 ```bash
-curl -s "http://CONTAINER_HOST_IP:5002/?q=<url_encoded_query>"
+curl -s "http://${CONTAINER_HOST_IP}:5002/?q=<url_encoded_query>"
 ```
 
 Parse the response and extract paper entries.
@@ -65,7 +65,7 @@ Parse the response and extract paper entries.
 **For recommendations:**
 
 ```bash
-curl -s "http://CONTAINER_HOST_IP:5002/recommend"
+curl -s "http://${CONTAINER_HOST_IP}:5002/recommend"
 ```
 
 Returns papers ranked by similarity to the user's saved/liked papers.
@@ -74,7 +74,7 @@ Returns papers ranked by similarity to the user's saved/liked papers.
 
 ```bash
 # Trigger a manual digest run on the container host
-ssh claude@CONTAINER_HOST_IP "cd ~/brain-and-co && docker compose -f deploy/docker-compose.arxiv.yml exec arxiv-sanity python send_digest.py"
+ssh ${DEPLOY_USER}@${CONTAINER_HOST_IP} "cd ~/brain-and-co && docker compose -f deploy/docker-compose.arxiv.yml exec arxiv-sanity python send_digest.py"
 ```
 
 ### Step 3: Format Results
@@ -101,7 +101,7 @@ If the user says "save 1,3" or similar:
 
 ```bash
 # Add papers to the user's saved list for recommendation training
-curl -s "http://CONTAINER_HOST_IP:5002/save" \
+curl -s "http://${CONTAINER_HOST_IP}:5002/save" \
   -X POST \
   -H "Content-Type: application/json" \
   -d '{"paper_ids": ["XXXX.XXXXX", "YYYY.YYYYY"]}'
@@ -137,7 +137,7 @@ Use Memento MCP `remember` tool:
 
 ## Infrastructure
 
-- **Endpoint**: `http://CONTAINER_HOST_IP:5002`
+- **Endpoint**: `http://${CONTAINER_HOST_IP}:5002`
 - **Deploy config**: `deploy/docker-compose.arxiv.yml`
 - **Data volume**: `arxiv_data` (SQLite database + computed features)
 - **Cron schedule**: Daily at 06:00 UTC (fetch), 06:30 UTC (features), 07:00 UTC (digest)

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-NAS_HOST="claude@CONTAINER_HOST_IP"
+NAS_HOST="${DEPLOY_USER:-claude}@${DEPLOY_HOST:?Set DEPLOY_HOST}"
 REMOTE_DIR="~/symphony"
 
 echo "==> Deploying Symphony to container host..."
