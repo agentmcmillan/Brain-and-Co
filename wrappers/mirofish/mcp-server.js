@@ -28,6 +28,7 @@ async function api(method, path, body) {
   const opts = {
     method,
     headers: { "Content-Type": "application/json" },
+    signal: AbortSignal.timeout(30_000),
   };
   if (body) opts.body = JSON.stringify(body);
 
@@ -214,7 +215,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   try {
     return await handleTool(name, args || {});
   } catch (err) {
-    return errorResult(`MiroFish API error: ${err.message}`);
+    const msg = err instanceof Error ? err.message : String(err);
+    return errorResult(`MiroFish API error: ${msg}`);
   }
 });
 

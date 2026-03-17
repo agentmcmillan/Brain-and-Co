@@ -39,8 +39,8 @@ services:
         # Recompute features/similarities at 06:30 UTC
         30 6 * * * cd /app && python compute_paper_features.py >> /var/log/arxiv-features.log 2>&1
 
-        # Send daily digest email at 07:00 UTC (if SMTP configured)
-        0 7 * * * cd /app && python send_digest.py >> /var/log/arxiv-digest.log 2>&1
+        # Send daily digest email at 07:00 UTC (only if SMTP configured)
+        0 7 * * * test -n "$SMTP_HOST" && cd /app && python send_digest.py >> /var/log/arxiv-digest.log 2>&1
         CRON
         chmod 0644 /etc/cron.d/arxiv-daily
         crontab /etc/cron.d/arxiv-daily
@@ -67,7 +67,7 @@ services:
       - arxiv_data:/data
       - arxiv_app:/app
     ports:
-      - "5002:5002"
+      - "127.0.0.1:5002:5002"
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:5002/ || exit 1"]
       interval: 30s

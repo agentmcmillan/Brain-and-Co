@@ -7,6 +7,9 @@
 #   5001 — MiroFish backend API (Flask)
 #   3001 — MiroFish frontend UI
 #   3002 — MCP wrapper (supergateway → streamable HTTP)
+#
+# For NAS deployment (LAN-accessible), set in .env:
+#   MIROFISH_BIND=0.0.0.0
 
 services:
   # MiroFish backend + simulation engine
@@ -27,8 +30,8 @@ services:
     volumes:
       - mirofish_data:/data
     ports:
-      - "127.0.0.1:5001:5001"
-      - "127.0.0.1:3001:3001"
+      - "${MIROFISH_BIND:-127.0.0.1}:5001:5001"
+      - "${MIROFISH_BIND:-127.0.0.1}:3001:3001"
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:5001/health 2>/dev/null || exit 1"]
       interval: 30s
@@ -60,7 +63,7 @@ services:
       retries: 3
       start_period: 30s
     ports:
-      - "127.0.0.1:3002:3000"
+      - "${MIROFISH_BIND:-127.0.0.1}:3002:3000"
     deploy:
       resources:
         limits:

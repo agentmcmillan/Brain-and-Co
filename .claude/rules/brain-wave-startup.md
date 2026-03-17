@@ -3,140 +3,28 @@ paths:
   - "**/*"
 ---
 
-# Brain-Wave Startup Verification
+# Brain-Wave Startup Check
 
-**IMPORTANT**: On every session start, verify the Brain-Wave memory system is properly installed.
+On session start, silently verify these exist:
+- `alpha-wave/INDEX.md`, `alpha-wave/TOPICS.md`
+- `beta-wave/_MAP.md`, `beta-wave/_CONNECTIONS.md`
+- `rem/restoration/PROTOCOL.md`, `rem/sessions/` (at least one file)
+- `.claude/agents/alpha-wave.md`, `.claude/agents/beta-wave.md`, `.claude/agents/rem.md`
 
-## Startup Check Protocol
+If ALL present: proceed silently.
+If ANY missing: report which components are missing and suggest `use brain-wave-init agent`.
+If AGENTS missing but this IS the Brain-and-Co repo: check git status.
 
-When a session begins, silently check for these critical files:
+Run Brain-Wave agents in background (`run_in_background: true`) so the user can keep working.
 
-### Required Files Checklist
-```
-Alpha-Wave:
-  - alpha-wave/INDEX.md
-  - alpha-wave/TOPICS.md
+## File Size Limits
 
-Beta-Wave:
-  - beta-wave/_MAP.md
-  - beta-wave/_CONNECTIONS.md
+All Brain-Wave output files must stay small:
 
-REM:
-  - rem/restoration/PROTOCOL.md
-  - rem/sessions/ (directory with at least one file)
+| File Type | Target | Maximum |
+|-----------|--------|---------|
+| Index/Topic/Summary files | 50 lines | 100 lines |
+| Maps | 100 lines | 200 lines |
+| Sessions | 30 lines | 50 lines |
 
-Agents:
-  - .claude/agents/alpha-wave.md
-  - .claude/agents/beta-wave.md
-  - .claude/agents/rem.md
-  - .claude/agents/brain-wave-init.md
-```
-
-## Verification Logic
-
-### If ALL files present:
-Continue normally - system is ready.
-
-### If AGENTS missing (.claude/agents/*.md):
-Display this message:
-
-```
-[brain-wave] Warning: Agent definitions missing
-
-The Brain-Wave agent files are not installed. To fix this:
-
-Option 1 - Download from GitHub:
-  git clone https://github.com/agentmcmillan/Brain-and-Co.git /tmp/brain-and-co
-  cp -r /tmp/brain-and-co/.claude/agents/* .claude/agents/
-  rm -rf /tmp/brain-and-co
-
-Option 2 - If this IS the Brain-and-Co repo:
-  The agent files should already exist. Check your git status.
-
-Would you like me to help set this up?
-```
-
-### If MEMORY FOLDERS missing (alpha-wave/, beta-wave/, rem/):
-Display this message:
-
-```
-[brain-wave] Memory system not initialized
-
-The Brain-Wave memory folders are missing. This is normal for:
-  - Fresh clone of the repository
-  - New project setup
-
-To initialize the memory system, run:
-  use brain-wave-init agent
-
-This will:
-  1. Index all files (Alpha-Wave)
-  2. Create architecture maps (Beta-Wave)
-  3. Set up session tracking (REM)
-
-Would you like me to initialize the Brain-Wave system now?
-```
-
-### If PARTIAL installation (some files missing):
-Display this message:
-
-```
-[brain-wave] Incomplete installation detected
-
-Missing components:
-  [ ] alpha-wave/INDEX.md
-  [x] beta-wave/_MAP.md
-  [ ] rem/restoration/PROTOCOL.md
-
-(x = present, empty = missing)
-
-To repair, run:
-  use brain-wave-init agent
-
-Or run individual agents:
-  use alpha-wave agent   (if alpha-wave missing)
-  use beta-wave agent    (if beta-wave missing)
-  use rem agent          (if rem missing)
-
-Would you like me to repair the Brain-Wave system?
-```
-
-## Auto-Repair Option
-
-If the user confirms they want to initialize or repair:
-1. Run `use brain-wave-init agent` in background
-2. This will handle all setup/repair automatically
-3. User can continue working while initialization runs
-
-## Background Execution
-
-**IMPORTANT**: Always run Brain-Wave agents in background to allow the user to keep working.
-
-When invoking agents via the Task tool, use:
-```
-run_in_background: true
-```
-
-This allows the user to continue prompting while agents work. Progress can be monitored via:
-- The output file returned by the Task tool
-- `tail -f <output_file>` to watch live progress
-- Agents output `[agent-name] Phase X/X: Complete ✓` when finished
-
-## GitHub Repository Reference
-
-Brain-Wave Memory System repository:
-- GitHub: https://github.com/agentmcmillan/Brain-and-Co
-
-To get the latest agent definitions:
-```bash
-# Clone just the agents folder
-curl -L https://github.com/agentmcmillan/Brain-and-Co/archive/main.zip -o /tmp/brain-and-co.zip
-unzip /tmp/brain-and-co.zip -d /tmp/
-cp -r /tmp/Brain-and-Co-main/.claude/agents/* .claude/agents/
-rm -rf /tmp/brain-and-co.zip /tmp/Brain-and-Co-main
-```
-
-## Silent Mode
-
-If all checks pass, do NOT output any startup messages - just proceed normally.
-Only alert the user if something needs attention.
+When files exceed limits: split into subdirectory with `_INDEX.md`, archive old content.
