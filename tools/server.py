@@ -81,7 +81,7 @@ async def signal_send(message: str, recipient: str = "") -> str:
 
 # Known devices on the network
 KNOWN_DEVICES = {
-    "nas": {"host": "CONTAINER_HOST_IP", "name": "NAS (Ubuntu)", "ports": [22, 8083, 11434]},
+    "container-host": {"host": "CONTAINER_HOST_IP", "name": "Container Host (Ubuntu)", "ports": [22, 8083, 11434]},
     "proxmox": {"host": "PROXMOX_HOST_IP", "name": "Proxmox Host", "ports": [22, 8006]},
     "gitea": {"host": "GITEA_HOST_IP", "name": "Gitea Server", "ports": [22, 3000]},
     "mac-studio": {"host": "MAC_STUDIO_IP", "name": "Mac Studio", "ports": [22]},

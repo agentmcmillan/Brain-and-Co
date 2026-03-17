@@ -12,7 +12,7 @@ Unified platform: MCP infrastructure + cross-agent memory + local knowledge pers
 | `wrappers/` | Stdio-to-HTTP wrappers for GitHub, Signal, Docker, Ollama, SSH, RSS, Cloudflare, MiroFish |
 | `caddy/` | Reverse proxy with automatic TLS + mTLS |
 | `client-configs/` | Client connection configs for Claude Code |
-| `deploy/` | Deployment scripts for NAS |
+| `deploy/` | Deployment scripts for container host |
 | `.claude/agents/` | 15 agent definitions (memory, execution, quality) |
 | `.claude/rules/` | 6 auto-loaded context rules |
 | `skills/` | 35+ Claude Code skills (memory, execution, hardware, review, research, prediction) |
@@ -28,7 +28,7 @@ Unified platform: MCP infrastructure + cross-agent memory + local knowledge pers
 # Install agents, hooks, rules, and skills into ~/.claude/
 ./setup.sh
 
-# Deploy infrastructure to NAS (optional)
+# Deploy infrastructure to container host (optional)
 ./deploy/deploy.sh
 ```
 

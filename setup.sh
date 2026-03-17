@@ -200,17 +200,25 @@ if [ "${SKIP_INTAKE:-false}" = "false" ]; then
   ask_yn "OpenAI API key?" && HAS_OPENAI=true || HAS_OPENAI=false
 
   echo ""
-  echo "Infrastructure (optional — for NAS deployment):"
+  echo "Infrastructure (optional — for container host deployment):"
   echo ""
 
-  ask_yn "NAS at CONTAINER_HOST_IP (Brain-and-Co infrastructure)?" && HAS_NAS=true || HAS_NAS=false
+  ask_yn "Container host (Brain-and-Co infrastructure)?" && HAS_CONTAINER_HOST=true || HAS_CONTAINER_HOST=false
+
+  CONTAINER_HOST_IP="CONTAINER_HOST_IP"
+  if $HAS_CONTAINER_HOST; then
+    read -r -p "  Container host IP [CONTAINER_HOST_IP]: " custom_ip
+    [ -n "$custom_ip" ] && CONTAINER_HOST_IP="$custom_ip"
+  fi
+
   ask_yn "MiroFish prediction engine?" && HAS_MIROFISH=true || HAS_MIROFISH=false
   ask_yn "arxiv-sanity-lite (paper discovery)?" && HAS_ARXIV=true || HAS_ARXIV=false
+  ask_yn "LLM Council (multi-model consensus)?" && HAS_COUNCIL=true || HAS_COUNCIL=false
 
   # Write config
   cat > "$CONFIG_FILE" << CONF
 {
-  "version": 1,
+  "version": 2,
   "configured_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
   "ai_tools": {
     "gemini": $USE_GEMINI,
@@ -224,9 +232,30 @@ if [ "${SKIP_INTAKE:-false}" = "false" ]; then
     "openai": $HAS_OPENAI
   },
   "infrastructure": {
-    "nas": $HAS_NAS,
+    "container_host": $HAS_CONTAINER_HOST,
     "mirofish": $HAS_MIROFISH,
-    "arxiv": $HAS_ARXIV
+    "arxiv": $HAS_ARXIV,
+    "council": $HAS_COUNCIL
+  },
+  "servers": {
+    "container_host": {
+      "host": "$CONTAINER_HOST_IP",
+      "ssh_user": "claude",
+      "services": {
+        "memento":       { "port": 56332, "protocol": "http", "enabled": $HAS_CONTAINER_HOST },
+        "network_tools": { "port": 8091,  "protocol": "http", "enabled": $HAS_CONTAINER_HOST },
+        "symphony":      { "port": 9100,  "protocol": "http", "enabled": $HAS_CONTAINER_HOST },
+        "entropy":       { "port": 8080,  "protocol": "http", "enabled": $HAS_CONTAINER_HOST },
+        "signal":        { "port": 8083,  "protocol": "http", "enabled": $HAS_CONTAINER_HOST },
+        "ollama":        { "port": 11434, "protocol": "http", "enabled": $HAS_CONTAINER_HOST },
+        "paperclip":     { "port": 3100,  "protocol": "http", "enabled": $HAS_CONTAINER_HOST },
+        "mcp_gateway":   { "port": 9000,  "protocol": "http", "enabled": $HAS_CONTAINER_HOST },
+        "mirofish":      { "port": 5001,  "protocol": "http", "enabled": $HAS_MIROFISH },
+        "mirofish_ui":   { "port": 3001,  "protocol": "http", "enabled": $HAS_MIROFISH },
+        "arxiv":         { "port": 5002,  "protocol": "http", "enabled": $HAS_ARXIV },
+        "council":       { "port": 5003,  "protocol": "http", "enabled": $HAS_COUNCIL }
+      }
+    }
   }
 }
 CONF
@@ -271,7 +300,7 @@ echo ""
 echo "Remote Control (optional):"
 echo "  Enable interactive oversight from claude.ai/code or Claude mobile app."
 echo "  - Global toggle: claude /config -> enable Remote Control"
-echo "  - NAS always-on: ./deploy/deploy-remote-control.sh"
+echo "  - Container host: ./deploy/deploy-remote-control.sh"
 echo "  - Symphony tasks: set remote_control: true in symphony.yaml or per-task"
 echo "  - Ralph runner:   ./ralph/ralph-runner.sh --rc"
 echo ""

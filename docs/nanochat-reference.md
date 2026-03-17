@@ -20,7 +20,7 @@ Unlike inference-only tools, nanochat covers the entire lifecycle of building a 
 
 ## Hardware Requirements
 
-nanochat's training pipeline requires substantial GPU resources. Pretraining at meaningful scale needs **8xH100** (or equivalent) GPUs. This is not deployable on the NAS for training.
+nanochat's training pipeline requires substantial GPU resources. Pretraining at meaningful scale needs **8xH100** (or equivalent) GPUs. This is not deployable on the container host for training.
 
 Suitable environments for training:
 - Cloud burst on Lambda Labs, RunPod, or AWS p5 instances
@@ -100,7 +100,7 @@ Relevant to Brain-and-Co agent design:
 
 ## Deploying Trained Models via Ollama
 
-Once a model is trained with nanochat, it can be served on the NAS through Ollama:
+Once a model is trained with nanochat, it can be served on the container host through Ollama:
 
 ### 1. Export to GGUF
 
@@ -125,7 +125,7 @@ SYSTEM "You are a helpful assistant."
 TEMPLATE "{{ .System }}\n\n{{ .Prompt }}"
 ```
 
-### 3. Register with Ollama on the NAS
+### 3. Register with Ollama on the container host
 
 ```bash
 ssh claude@CONTAINER_HOST_IP "cd /path/to/model && ollama create nanochat -f Modelfile"
@@ -144,7 +144,7 @@ This means any Brain-and-Co agent or skill can call the custom-trained model thr
 
 ## Key Takeaways for Brain-and-Co
 
-1. **Training is not NAS-viable** -- requires cloud GPU burst for any meaningful pretraining
-2. **Inference is NAS-viable** -- small trained models can run on Ollama after GGUF conversion
+1. **Training is not container-host-viable** -- requires cloud GPU burst for any meaningful pretraining
+2. **Inference is container-host-viable** -- small trained models can run on Ollama after GGUF conversion
 3. **The tool-use pattern in `execution.py` is the most immediately useful component** -- it demonstrates how to train models that natively understand tool calling, which could improve custom agent behavior
 4. **The full pipeline serves as a reference** for understanding what happens inside the models Brain-and-Co orchestrates via API calls

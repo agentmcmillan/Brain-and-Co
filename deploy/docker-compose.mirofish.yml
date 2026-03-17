@@ -8,7 +8,7 @@
 #   3001 — MiroFish frontend UI
 #   3002 — MCP wrapper (supergateway → streamable HTTP)
 #
-# For NAS deployment (LAN-accessible), set in .env:
+# For container host deployment (LAN-accessible), set in .env:
 #   MIROFISH_BIND=0.0.0.0
 
 services:

@@ -4,7 +4,7 @@ set -euo pipefail
 NAS_HOST="claude@CONTAINER_HOST_IP"
 REMOTE_DIR="~/symphony"
 
-echo "==> Deploying Symphony to NAS..."
+echo "==> Deploying Symphony to container host..."
 
 # Create remote directory
 ssh "$NAS_HOST" "mkdir -p $REMOTE_DIR"

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Deploy Brain-and-Co to NAS
+# Deploy Brain-and-Co to container host
 set -e
 
 NAS_HOST="CONTAINER_HOST_IP"
@@ -29,8 +29,8 @@ tar czf /tmp/brain-and-co-deploy.tar.gz \
     --exclude='beta-wave' \
     -C "$(dirname "$0")/.." .
 
-# Copy to NAS
-echo "Copying to NAS..."
+# Copy to container host
+echo "Copying to container host..."
 ssh "${NAS_USER}@${NAS_HOST}" "mkdir -p ${DEPLOY_DIR}"
 scp /tmp/brain-and-co-deploy.tar.gz "${NAS_USER}@${NAS_HOST}:${DEPLOY_DIR}/deploy.tar.gz"
 

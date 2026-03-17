@@ -73,7 +73,7 @@ Returns papers ranked by similarity to the user's saved/liked papers.
 **For digest:**
 
 ```bash
-# Trigger a manual digest run on the NAS
+# Trigger a manual digest run on the container host
 ssh claude@CONTAINER_HOST_IP "cd ~/brain-and-co && docker compose -f deploy/docker-compose.arxiv.yml exec arxiv-sanity python send_digest.py"
 ```
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Deploy Claude Code Remote Control as a systemd user service on NAS
+# Deploy Claude Code Remote Control as a systemd user service on container host
 set -e
 
 NAS_HOST="CONTAINER_HOST_IP"
@@ -10,7 +10,7 @@ SERVICE_FILE="$SCRIPT_DIR/claude-remote-control.service"
 echo "=== Claude Code Remote Control Deployment ==="
 echo "Target: ${NAS_USER}@${NAS_HOST}"
 
-# 1. Verify prerequisites on NAS
+# 1. Verify prerequisites on container host
 echo ""
 echo "Checking prerequisites..."
 ssh "${NAS_USER}@${NAS_HOST}" << 'CHECK'
@@ -76,7 +76,7 @@ if [ "$STATUS" = "active" ]; then
     echo "  Remote Control is running!"
     echo ""
     echo "  Connect from:"
-    echo "    - https://claude.ai/code (look for 'Brain-and-Co NAS')"
+    echo "    - https://claude.ai/code (look for 'Brain-and-Co')"
     echo "    - Claude mobile app (iOS/Android)"
 else
     echo ""
@@ -88,7 +88,7 @@ START
 echo ""
 echo "=== Deployment Complete ==="
 echo ""
-echo "Management commands (run on NAS):"
+echo "Management commands (run on container host):"
 echo "  systemctl --user status claude-remote-control"
 echo "  systemctl --user restart claude-remote-control"
 echo "  journalctl --user -u claude-remote-control -f"

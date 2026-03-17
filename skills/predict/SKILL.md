@@ -283,7 +283,7 @@ If status is `failed`, display the error message from the response.
 ## Rules
 
 - ALWAYS validate that `MIROFISH_URL` is reachable before submitting a simulation
-- If MiroFish is unreachable, suggest checking that the service is running on the NAS
+- If MiroFish is unreachable, suggest checking that the service is running on the container host
 - NEVER fabricate simulation results — only display actual API responses
 - Keep seed text under 4000 characters; truncate with a note if longer
 - For repo-context seeds, exclude binary files, lock files, and node_modules references
