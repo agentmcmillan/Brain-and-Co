@@ -59,6 +59,7 @@ async def submit_task(request: Request) -> JSONResponse:
         allowed_tools=body.get("allowed_tools", []),
         max_turns=body.get("max_turns"),
         timeout_minutes=body.get("timeout_minutes"),
+        remote_control=body.get("remote_control"),
         callback_url=body.get("callback_url", ""),
     )
 

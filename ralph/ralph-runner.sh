@@ -6,6 +6,7 @@
 #   --max-stories N    Maximum stories to execute (default: unlimited)
 #   --timeout M        Timeout per story in minutes (default: 10)
 #   --dry-run          Show what would be executed without running
+#   --rc               Enable Remote Control for interactive oversight
 #   --status           Show current prd.json status and exit
 #   --help             Show this help message
 
@@ -20,6 +21,7 @@ MAX_STORIES=0  # 0 = unlimited
 TIMEOUT_MINUTES=10
 DRY_RUN=false
 STATUS_ONLY=false
+REMOTE_CONTROL=false
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -36,6 +38,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --dry-run)
       DRY_RUN=true
+      shift
+      ;;
+    --rc|--remote-control)
+      REMOTE_CONTROL=true
       shift
       ;;
     --status)
@@ -130,8 +136,13 @@ Important:
 "
 
 # Run Claude Code with the ralph skill
-# The skill is expected to be installed in ~/.claude/skills/ or in the project's skills/ directory
-OUTPUT=$(echo "$RALPH_PROMPT" | claude --dangerously-skip-permissions 2>&1 | tee /dev/stderr) || true
+if [ "$REMOTE_CONTROL" = true ]; then
+  echo "Remote Control enabled — session will appear in claude.ai/code"
+  echo ""
+  OUTPUT=$(claude --remote-control "Ralph: $PROJECT" --dangerously-skip-permissions -p "$RALPH_PROMPT" 2>&1 | tee /dev/stderr) || true
+else
+  OUTPUT=$(echo "$RALPH_PROMPT" | claude --dangerously-skip-permissions 2>&1 | tee /dev/stderr) || true
+fi
 
 # Check for completion signal
 if echo "$OUTPUT" | grep -q "<promise>COMPLETE</promise>"; then

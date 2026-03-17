@@ -64,6 +64,7 @@ class AgentConfig(BaseModel):
     github_token: str = ""
     max_heartbeats: int = 5
     turns_per_heartbeat: int = 25
+    enable_remote_control: bool = False
 
 
 class HooksConfig(BaseModel):

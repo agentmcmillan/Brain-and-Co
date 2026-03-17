@@ -53,6 +53,7 @@ class Task:
     depends_on: list[str] = field(default_factory=list)
     max_turns: int | None = None
     timeout_minutes: int | None = None
+    remote_control: bool | None = None  # Per-task RC override (None = use agent config)
     callback_url: str = ""
 
     # Runtime state
@@ -126,6 +127,7 @@ class Task:
             "pr_url": self.pr_url,
             "ci_status": self.ci_status,
             "tools_used": self.tools_used,
+            "remote_control": self.remote_control,
             "error": self.error,
             "elapsed_seconds": self.elapsed_seconds,
             "created_at": self.created_at,

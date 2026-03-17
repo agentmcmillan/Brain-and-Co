@@ -52,6 +52,7 @@ agent:
   max_heartbeats: 5
   turns_per_heartbeat: 25
   github_token: "${GITHUB_TOKEN}"
+  enable_remote_control: false
 
 hooks:
   auto_create_pr: true

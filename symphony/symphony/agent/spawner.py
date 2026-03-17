@@ -19,6 +19,12 @@ class AgentSpawner:
     def __init__(self, config: SymphonyConfig):
         self.config = config
 
+    def _is_rc_enabled(self, task: Task) -> bool:
+        """Check if Remote Control is enabled for this task."""
+        if task.remote_control is not None:
+            return task.remote_control
+        return self.config.agent.enable_remote_control
+
     async def spawn(
         self,
         task: Task,
@@ -30,14 +36,16 @@ class AgentSpawner:
         Returns an AgentSession with the running process.
         The caller should await session.process.wait() to detect completion.
         """
+        rc_enabled = self._is_rc_enabled(task)
         cmd = self._build_command(task)
         env = self._build_env()
 
         logger.info(
-            "Spawning agent for task %s in %s (max_turns=%s)",
+            "Spawning agent for task %s in %s (max_turns=%s, remote_control=%s)",
             task.id,
             workspace,
             task.max_turns or self.config.agent.turns_per_heartbeat,
+            rc_enabled,
         )
 
         proc = await asyncio.create_subprocess_exec(
@@ -57,7 +65,8 @@ class AgentSpawner:
         task.session_id = f"symphony-{task.id}"
 
         # Start NDJSON stream parser as a background task
-        if proc.stdout:
+        # Skip when Remote Control is enabled (RC doesn't emit stream-json)
+        if not rc_enabled and proc.stdout:
 
             async def _handle_event(event: StreamEvent) -> None:
                 self._update_session(session, event)
@@ -72,19 +81,35 @@ class AgentSpawner:
         return session
 
     def _build_command(self, task: Task) -> list[str]:
+        rc_enabled = self._is_rc_enabled(task)
         cmd = [self.config.agent.claude_path]
 
-        # Resume existing session or start new one
-        if task.claude_session_id:
-            cmd.extend(["--resume", task.claude_session_id])
-        else:
-            cmd.extend(["-p", task.prompt])
+        if rc_enabled:
+            # Remote Control mode: interactive session visible on claude.ai/code
+            # Cannot use --output-format stream-json (mutually exclusive)
+            rc_name = f"Symphony: {task.title[:60]}"
 
-        cmd.extend([
-            "--output-format", "stream-json",
-            "--dangerously-skip-permissions",
-            "--verbose",
-        ])
+            if task.claude_session_id:
+                cmd.extend(["--resume", task.claude_session_id])
+            else:
+                cmd.extend(["-p", task.prompt])
+
+            cmd.extend([
+                "--remote-control", rc_name,
+                "--dangerously-skip-permissions",
+            ])
+        else:
+            # Standard mode: non-interactive with stream-json telemetry
+            if task.claude_session_id:
+                cmd.extend(["--resume", task.claude_session_id])
+            else:
+                cmd.extend(["-p", task.prompt])
+
+            cmd.extend([
+                "--output-format", "stream-json",
+                "--dangerously-skip-permissions",
+                "--verbose",
+            ])
 
         allowed = task.allowed_tools or self.config.agent.default_allowed_tools
         if allowed:

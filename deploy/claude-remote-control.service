@@ -1,0 +1,22 @@
+[Unit]
+Description=Claude Code Remote Control Server (Brain-and-Co)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=claude
+WorkingDirectory=/home/claude/brain-and-co
+ExecStart=/usr/bin/claude remote-control --name "Brain-and-Co NAS" --spawn worktree --capacity 5
+Restart=on-failure
+RestartSec=30
+StartLimitBurst=5
+StartLimitIntervalSec=300
+Environment=HOME=/home/claude
+Environment=PATH=/usr/local/bin:/usr/bin:/bin:/home/claude/.local/bin
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=claude-remote-control
+
+[Install]
+WantedBy=default.target

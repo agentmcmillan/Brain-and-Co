@@ -47,6 +47,13 @@ cp -a "$TMPDIR"/. .
 rm -rf "$TMPDIR"
 trap - EXIT
 
+# Ensure git repo exists (needed for Remote Control --spawn worktree)
+if [ ! -d .git ]; then
+    git init
+    git add -A
+    git commit -m "Initial deploy" --allow-empty
+fi
+
 # Ensure .env exists with required vars
 if [ ! -f .env ]; then
     cp .env.example .env
@@ -110,4 +117,13 @@ REMOTE
 
 # Cleanup
 rm -f /tmp/brain-and-co-deploy.tar.gz
+
+# Deploy Remote Control service (if requested)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ "${DEPLOY_RC:-false}" = "true" ]; then
+    echo ""
+    echo "=== Deploying Remote Control Service ==="
+    "$SCRIPT_DIR/deploy-remote-control.sh"
+fi
+
 echo "Done!"
